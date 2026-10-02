@@ -1,0 +1,66 @@
+[
+ {
+  "split": "random",
+  "model": "HGB",
+  "macro_f1": 0.5689411315393043,
+  "weighted_f1": 0.985353019080262,
+  "binary_f1_ransom": 0.5034238758274366,
+  "per_class_f1": {
+   "montrealCryptXXX": 0.8672,
+   "montrealCryptoLocker": 0.276,
+   "otherRansom": 0.0839,
+   "paduaCryptoWall": 0.4113,
+   "princetonCerber": 0.6253,
+   "princetonLocky": 0.7265,
+   "white": 0.9924
+  }
+ },
+ {
+  "split": "random",
+  "model": "XGBoost-GPU",
+  "macro_f1": 0.5745236760743132,
+  "weighted_f1": 0.9852910542792106,
+  "binary_f1_ransom": 0.5069011576135352,
+  "per_class_f1": {
+   "montrealCryptXXX": 0.8585,
+   "montrealCryptoLocker": 0.2839,
+   "otherRansom": 0.109,
+   "paduaCryptoWall": 0.4149,
+   "princetonCerber": 0.631,
+   "princetonLocky": 0.732,
+   "white": 0.9923
+  }
+ },
+ {
+  "split": "group_by_address",
+  "model": "HGB",
+  "macro_f1": 0.5580954116273663,
+  "weighted_f1": 0.9855610265799274,
+  "binary_f1_ransom": 0.48647374314846464,
+  "per_class_f1": {
+   "montrealCryptXXX": 0.8854,
+   "montrealCryptoLocker": 0.2174,
+   "otherRansom": 0.087,
+   "paduaCryptoWall": 0.3677,
+   "princetonCerber": 0.6253,
+   "princetonLocky": 0.7314,
+   "white": 0.9924
+  }
+ },
+ {
+  "split": "group_by_address",
+  "model": "XGBoost-GPU",
+  "macro_f1": 0.565105148748528,
+  "weighted_f1": 0.9858303495261445,
+  "binary_f1_ransom": 0.4966261808367072,
+  "per_class_f1": {
+   "montrealCryptXXX": 0.8874,
+   "montrealCryptoLocker": 0.2399,
+   "otherRansom": 0.0838,
+   "paduaCryptoWall": 0.3815,
+   "princetonCerber": 0.6342,
+   "princetonLocky": 0.7364,
+   "white": 0.9925
+  }
+ }
+]

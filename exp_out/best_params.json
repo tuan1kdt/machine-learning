@@ -1,0 +1,33 @@
+{
+ "HGB": {
+  "learning_rate": 0.03,
+  "max_leaf_nodes": 255,
+  "min_samples_leaf": 20,
+  "l2_regularization": 10.0,
+  "max_features": 0.8
+ },
+ "LightGBM": {
+  "learning_rate": 0.05,
+  "num_leaves": 31,
+  "min_child_samples": 20,
+  "subsample": 0.7,
+  "subsample_freq": 1,
+  "colsample_bytree": 1.0,
+  "reg_lambda": 1.0
+ },
+ "XGBoost-GPU": {
+  "n_estimators": 300,
+  "learning_rate": 0.05,
+  "max_depth": 12,
+  "min_child_weight": 1,
+  "subsample": 0.9,
+  "colsample_bytree": 0.6,
+  "reg_lambda": 5.0
+ },
+ "RandomForest": {
+  "n_estimators": 300,
+  "min_samples_leaf": 1,
+  "max_features": "sqrt",
+  "max_depth": null
+ }
+}

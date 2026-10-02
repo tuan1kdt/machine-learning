@@ -1,0 +1,20 @@
+# Dataset / Training data
+BitcoinHeistData.csv
+
+# Large model files (>100MB exceeds GitHub push limit)
+outputs/models/RandomForest.joblib
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# OS files
+.DS_Store
+Thumbs.db

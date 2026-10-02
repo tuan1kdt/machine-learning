@@ -1,0 +1,14 @@
+subset,added,n_features,MAE,R2,train_time_s,features,improvement_pct
+Top-0 (baseline),—,0,1.464050964082363,-1.9976624809903143e-06,0.0,,0.0
+Top-1,year,1,1.3906711524129731,0.08044304027819116,0.03389808302745223,year,54.72894659133434
+Top-2,neighbors,2,1.3506962649822216,0.1252913736291389,0.052930791047401726,"year, neighbors",84.54346136617713
+Top-3,weight,3,1.3482544750701344,0.12806013160495433,0.07304029108490795,"year, neighbors, weight",86.36462425342974
+Top-4,count,4,1.3476978285986667,0.1297734425620689,0.12335208407603204,"year, neighbors, weight, count",86.77978851065717
+Top-5,weight_per_count,5,1.3386444298143505,0.1411519715171189,0.12953558401204646,"year, neighbors, weight, count, weight_per_count",93.53209500020328
+Top-6,length,6,1.3324806421868172,0.14653201414609218,0.14307045796886086,"year, neighbors, weight, count, weight_per_count, length",98.12923958524887
+Top-7,is_ransom,7,1.33152133973441,0.14768334179277598,0.15633487503509969,"year, neighbors, weight, count, weight_per_count, length, is_ransom",98.844717200799
+Top-8,month,8,1.3304506849832027,0.1489102983656716,0.17366112500894815,"year, neighbors, weight, count, weight_per_count, length, is_ransom, month",99.6432448252712
+Top-9,looped_ratio,9,1.3302397228826952,0.14921670173629875,0.20117608306463808,"year, neighbors, weight, count, weight_per_count, length, is_ransom, month, looped_ratio",99.80058692344245
+Top-10,day,10,1.3302262830065124,0.14922592289589198,0.24050766706932336,"year, neighbors, weight, count, weight_per_count, length, is_ransom, month, looped_ratio, day",99.81061080125123
+Top-11,weekday,11,1.3301627613138973,0.14931884555320218,0.2694637500680983,"year, neighbors, weight, count, weight_per_count, length, is_ransom, month, looped_ratio, day, weekday",99.85798725593855
+Top-12,looped,12,1.329972352598438,0.14936627204027975,0.2977638749871403,"year, neighbors, weight, count, weight_per_count, length, is_ransom, month, looped_ratio, day, weekday, looped",100.0000000000684
