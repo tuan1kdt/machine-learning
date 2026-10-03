@@ -55,6 +55,8 @@ def Home() -> None:
              "<b>So sánh mô hình</b> — kết quả Bài 1 trên tập test.<br>"
              "<b>Chọn đặc trưng (Bài 2)</b> — tương quan với <code>log_income</code>, MAE của Linear Regression "
              "theo tập đặc trưng; tự chọn đặc trưng và train lại trực tiếp.<br>"
+             "<b>Bài 2 — Phân lớp tuyến tính</b> — cùng bài toán 7 lớp, Linear Regression làm bộ phân lớp "
+             "(one-hot + argmax); tương quan point-biserial, MAE / accuracy / macro F1 theo tập đặc trưng.<br>"
              "<b>Dự đoán</b> — nhập thông tin 1 địa chỉ hoặc tải lên file CSV để phân loại; "
              "có thể lấy ngẫu nhiên dòng thật từ tập test.")
         st.markdown(" ".join(f'<span class="pill">{t}</span>' for t in

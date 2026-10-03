@@ -208,7 +208,7 @@ nhất câu này.
 | 9 | Độ đo | 50 s | Luôn đoán white vẫn được accuracy 98,6%, nên chọn theo macro F1. |
 | 10 | Kết quả | 60 s | XGBoost: macro F1 0,575, weighted F1 0,985, test 0,75 s. |
 | 11 | Từng lớp | 45 s | Tốt: CryptXXX 0,86, Locky 0,73. Khó: otherRansom 0,11. |
-| 12 | Thời gian | 45 s | KNN train 0 s nhưng test 14 s; XGBoost cân bằng nhất. |
+| 12 | Thời gian | 60 s | KNN train 0 s nhưng test 14 s; HGB lâu nhất vì gần 1.800 cây to xây nối tiếp; XGBoost cân bằng nhất. |
 | 13 | Kiểm chứng | 45 s | Chia theo địa chỉ vẫn 0,565: mô hình không học thuộc địa chỉ. |
 | 14 | Bài 2: bài toán | 60 s | Linear Regression + MAE cần mục tiêu liên tục, nên dự đoán log(income). |
 | 15 | Xếp hạng r | 40 s | year −0,285, neighbors +0,198; các đặc trưng còn lại rất yếu. |
@@ -312,50 +312,59 @@ lớp hiếm; đây là hạn chế nhóm đã nêu."* Thầy cô đánh giá ca
 15. **Vì sao KNN train nhanh nhất nhưng test chậm nhất?**
     KNN không học gì khi train, chỉ lưu dữ liệu. Khi dự đoán, nó phải tính khoảng cách từ mỗi điểm trong 583 nghìn
     điểm test tới 126 nghìn điểm train.
-16. **Có bị overfitting không?**
+16. **HistGradientBoosting (HGB) là gì, sao train lâu nhất (34 s)?**
+    - HGB là gradient boosting của scikit-learn: các cây xây **nối tiếp**, cây sau sửa lỗi của các cây trước.
+      Chữ "Hist": giá trị mỗi cột được gom vào tối đa 255 nhóm, nên khi tìm điểm chia chỉ thử tối đa 255 mốc.
+    - Lâu vì 3 lý do: các vòng phải chạy tuần tự (Random Forest thì xây 300 cây song song); learning rate 0,03 nhỏ
+      nên chạy 255 vòng × 7 lớp = 1.785 cây; mỗi cây trung bình 226 lá (cây LightGBM chỉ 31 lá). XGBoost cây cũng
+      to nhưng chạy trên GPU nên chỉ 12,8 s.
+    - Có đáng không: random search chọn cấu hình này vì macro F1 validation cao nhất (0,5616); cấu hình 127 lá,
+      learning rate 0,05 được 0,5602 mà nhanh gấp 4 lần. Train chỉ làm một lần; khi dùng thật, tốc độ dự đoán quan
+      trọng hơn, nên nhóm chọn XGBoost (test 0,75 s).
+17. **Có bị overfitting không?**
     Kết quả báo cáo trên 583 nghìn dòng test chưa từng thấy. Boosting có early stopping và regularization. Khi chia
     theo địa chỉ, macro F1 vẫn 0,565.
-17. **Ensemble cao hơn, sao lại chọn XGBoost?**
+18. **Ensemble cao hơn, sao lại chọn XGBoost?**
     Ensemble chỉ hơn 0,002 macro F1 (0,576 so với 0,575), nhưng tốn gấp khoảng 4 lần thời gian train và 22 lần thời
     gian test (16,8 s so với 0,75 s).
 
 ### Bài 2
 
-18. **Tại sao Bài 2 không dùng nhãn của Bài 1?**
+19. **Tại sao Bài 2 không dùng nhãn của Bài 1?**
     Đề yêu cầu Linear Regression + MAE, tức bài toán hồi quy, cần mục tiêu là số liên tục. 7 lớp không có thứ tự, nên
     đánh số 0–6 rồi hồi quy là vô nghĩa. Nhóm chọn `income`, một biến số có ý nghĩa thật, và lấy log vì nó lệch mạnh.
-19. **Tương quan cao nhất chỉ 0,285, phương pháp có ý nghĩa không?**
+20. **Tương quan cao nhất chỉ 0,285, phương pháp có ý nghĩa không?**
     Có, vì thứ hạng vẫn đúng. Top-6 đạt 98% mức cải thiện, còn 6 đặc trưng có |r| thấp nhất chỉ 2,5%. Mục tiêu của
     Bài 2 là so sánh các tập đặc trưng, không phải đạt MAE thấp nhất.
-20. **Vì sao dùng Pearson mà không phải Spearman?**
+21. **Vì sao dùng Pearson mà không phải Spearman?**
     Linear Regression là mô hình tuyến tính, còn Pearson đo đúng quan hệ tuyến tính. Thực nghiệm xác nhận: Top-6 theo
     Spearman cho MAE 1,3476 (86,8%), kém hơn Top-6 theo Pearson (1,3325).
-21. **Dùng p-value để chọn đặc trưng được không?**
+22. **Dùng p-value để chọn đặc trưng được không?**
     Không hữu ích ở đây. Với 2,3 triệu dòng train, mọi tương quan dù rất nhỏ (looped r = 0,002) đều có p < 0,05. Phải
     dựa vào độ lớn |r| và kiểm chứng bằng MAE.
-22. **Nhược điểm của chọn đặc trưng bằng tương quan?**
+23. **Nhược điểm của chọn đặc trưng bằng tương quan?**
     - Chỉ đo quan hệ tuyến tính giữa từng cặp, nên không thấy tương tác: hai đặc trưng yếu riêng lẻ có thể mạnh khi
       kết hợp.
     - Nhạy với ngoại lai.
     - Không nói lên nhân quả.
 
     Có thể mở rộng bằng Mutual Information, RFE, Lasso (L1) hoặc độ quan trọng đặc trưng của mô hình cây.
-23. **R² = 0,15 thấp có sao không?**
+24. **R² = 0,15 thấp có sao không?**
     Đó là giới hạn của mô hình tuyến tính với dữ liệu này: quan hệ với income yếu và phi tuyến. Nhóm nêu rõ đây là
     hạn chế. Kết luận về chọn đặc trưng vẫn đúng, vì mọi tập đặc trưng được so sánh trên cùng điều kiện.
 
 ### Demo & câu hỏi mở
 
-24. **Ứng dụng Streamlit hoạt động thế nào?**
+25. **Ứng dụng Streamlit hoạt động thế nào?**
     Streamlit chạy script Python và tự sinh giao diện web. Mỗi khi người dùng đổi một nút hay thanh kéo, script chạy
     lại. Dữ liệu và mô hình được cache để không phải nạp lại. Mô hình là file `.joblib` chứa pipeline (tiền xử lý +
     mô hình) và trọng số lớp, lưu từ Bài 1.
-25. **Có thêm thời gian, nhóm sẽ làm gì?**
+26. **Có thêm thời gian, nhóm sẽ làm gì?**
     - Bổ sung giá BTC theo ngày để quy income ra USD.
     - Tổng hợp hành vi nhiều ngày của cùng một địa chỉ.
     - Dùng cấu trúc đồ thị giao dịch đầy đủ.
     - Ở Bài 2: thử Mutual Information, RFE và mô hình phi tuyến.
-26. **Gặp câu không biết trả lời?**
+27. **Gặp câu không biết trả lời?**
     Nói thật: *"Nhóm em chưa thử điều đó; đây là một hướng hay để mở rộng."* Không bịa con số.
 
 ---

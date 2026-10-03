@@ -13,6 +13,7 @@ from Home import Home              # noqa: E402  (import sau set_page_config)
 from Statistics import Statistics  # noqa: E402
 from Models import Models          # noqa: E402
 from FeatureSelection import FeatureSelection  # noqa: E402
+from LinearClassification import LinearClassification  # noqa: E402
 from Predict import Predict        # noqa: E402
 from Team import Team              # noqa: E402
 
@@ -24,6 +25,7 @@ PAGES = {
     "Khám phá dữ liệu": ("bar-chart", Statistics),
     "So sánh mô hình": ("trophy", Models),
     "Chọn đặc trưng (Bài 2)": ("funnel", FeatureSelection),
+    "Bài 2 — Phân lớp tuyến tính": ("bounding-box", LinearClassification),
     "Dự đoán": ("shield-check", Predict),
     "Nhóm thực hiện": ("people", Team),
 }

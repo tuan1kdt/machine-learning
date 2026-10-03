@@ -1,7 +1,8 @@
 # Bài 3 — Demo Streamlit: phát hiện ransomware (BitcoinHeist)
 
 Demo cho mô hình phân loại 7 lớp (`white` + 5 họ ransomware + `otherRansom`) đã huấn luyện ở Bài 1 (`../bai1.ipynb`).
-Trang **Chọn đặc trưng (Bài 2)** trình bày kết quả của `../bai2.ipynb`.
+Trang **Chọn đặc trưng (Bài 2)** trình bày kết quả của `../bai2.ipynb` (bản hồi quy); trang **Bài 2 — Phân lớp
+tuyến tính** trình bày kết quả của `../bai2_classification.ipynb` (bản phân lớp).
 
 ## Cài đặt & chạy (Python > 3.10)
 
@@ -23,6 +24,7 @@ trong `models/` trước, sau đó `../outputs/models/`.
 | Khám phá dữ liệu | Phân phối nhãn, theo năm; phân phối đặc trưng theo lớp; ma trận tương quan |
 | So sánh mô hình | Accuracy / precision / recall / F1 (từng lớp, weighted, macro), thời gian train / test |
 | Chọn đặc trưng (Bài 2) | Hồi quy `log_income` bằng Linear Regression: tương quan Pearson / Spearman với mục tiêu, ma trận tương quan (đặc trưng dư thừa); MAE theo Top-k và theo tập đặc trưng; thử nghiệm trực tiếp (Top-k / ngưỡng \|r\| / tự chọn, loại dư thừa) rồi train lại trên mẫu |
+| Bài 2 — Phân lớp tuyến tính | Bài toán 7 lớp của Bài 1, Linear Regression làm bộ phân lớp tuyến tính (one-hot → 7 điểm → argmax) trên tập cân bằng: minh hoạ 7 điểm của một dòng test; tương quan point-biserial đặc trưng × lớp, điểm R, η (`f_classif`), đặc trưng dư thừa; MAE / accuracy / macro F1 theo Top-k và theo tập đặc trưng, kiểm chứng chéo với Logistic Regression; thử nghiệm trực tiếp (Top-k / ngưỡng R / tự chọn, loại dư thừa, chọn Linear hoặc Logistic Regression) kèm ma trận nhầm lẫn và hệ số |
 | Dự đoán | Nhập 1 địa chỉ (hoặc lấy ngẫu nhiên dòng thật từ tập test) · Dự đoán hàng loạt từ CSV + ma trận nhầm lẫn |
 | Nhóm thực hiện | Thành viên — **sửa `MEMBERS` trong `Team.py`** |
 
@@ -35,3 +37,7 @@ trong `models/` trước, sau đó `../outputs/models/`.
 - `bai2/` — kết quả Bài 2, **do notebook `../bai2.ipynb` tạo ra** (ô cuối mục 4, không phải `prepare_data.py`):
   `corr_target.csv`, `corr_matrix.csv` (tương quan trên tập train), `topk.csv`, `subsets.csv` (MAE trên tập test),
   `sample.csv.gz` (mẫu 100.000 dòng train + 25.000 dòng test cho tab *Thử nghiệm trực tiếp*).
+- `bai2_cls/` — kết quả Bài 2 bản phân lớp, **do notebook `../bai2_classification.ipynb` tạo ra** (ô "Xuất kết quả
+  cho demo" ở mục 5.6): `corr_classes.csv` (tương quan point-biserial, R, η), `corr_matrix.csv`, `topk.csv`,
+  `subsets.csv`, `cross.csv` (Linear vs Logistic Regression), `sample.csv.gz` (toàn bộ tập cân bằng 66.260 train +
+  16.566 test → tab *Thử nghiệm trực tiếp* cho đúng số liệu notebook).

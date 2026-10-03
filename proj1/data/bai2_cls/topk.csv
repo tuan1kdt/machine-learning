@@ -1,0 +1,17 @@
+subset,added,n_features,MAE,accuracy,macro_f1,train_time_s,features,improvement_pct
+Top-0 (baseline),—,0,0.19857740172832747,0.5,0.09523809523809523,0.0,,0.0
+Top-1,income_tz,1,0.18444324826513905,0.4911264034770011,0.09450245664572032,0.010295542073436081,income_tz,71.02025542324347
+Top-2,year,2,0.18489030254968947,0.5206446939514668,0.15587986003656543,0.011426875018514693,"income_tz, year",68.77392991393606
+Top-3,income_per_neighbor,3,0.18406107345692477,0.538029699384281,0.19202367904191794,0.01493137504439801,"income_tz, year, income_per_neighbor",72.94057930867444
+Top-4,month,4,0.18308976295750465,0.551370276469878,0.23890723285521817,0.0105235839728266,"income_tz, year, income_per_neighbor, month",77.82114891220652
+Top-5,day,5,0.1830937733671592,0.550464807436919,0.23721755448533108,0.013064083992503583,"income_tz, year, income_per_neighbor, month, day",77.80099770055027
+Top-6,income,6,0.1831541954758949,0.5795605456960039,0.30471154466021483,0.013994209002703428,"income_tz, year, income_per_neighbor, month, day, income",77.4973931297639
+Top-7,neighbors,7,0.18129617033984252,0.5977906555595799,0.33678369547534587,0.022346375044435263,"income_tz, year, income_per_neighbor, month, day, income, neighbors",86.83346126351681
+Top-8,weight,8,0.18084495745866022,0.5983943015815526,0.34273869105103655,0.016422833083197474,"income_tz, year, income_per_neighbor, month, day, income, neighbors, weight",89.100682583512
+Top-9,looped_ratio,9,0.18009854505967485,0.600929614873838,0.34689689186240147,0.028189082979224622,"income_tz, year, income_per_neighbor, month, day, income, neighbors, weight, looped_ratio",92.85120074259946
+Top-10,looped,10,0.18009684841375942,0.600929614873838,0.3468953906380256,0.024673874955624342,"income_tz, year, income_per_neighbor, month, day, income, neighbors, weight, looped_ratio, looped",92.85972592428723
+Top-11,income_per_count,11,0.17996162973427757,0.6028009175419534,0.34826003015340795,0.01441229204647243,"income_tz, year, income_per_neighbor, month, day, income, neighbors, weight, looped_ratio, looped, income_per_count",93.53916280600824
+Top-12,weekday,12,0.1796618914688654,0.6041893033924907,0.3480153630337478,0.015265542082488537,"income_tz, year, income_per_neighbor, month, day, income, neighbors, weight, looped_ratio, looped, income_per_count, weekday",95.04526561047639
+Top-13,weight_per_count,13,0.1788439724832842,0.607811179524327,0.35381466544272583,0.01641870802268386,"income_tz, year, income_per_neighbor, month, day, income, neighbors, weight, looped_ratio, looped, income_per_count, weekday, weight_per_count",99.15508480996267
+Top-14,length,14,0.17878461520829877,0.6082337317397079,0.3538058863343641,0.018232624977827072,"income_tz, year, income_per_neighbor, month, day, income, neighbors, weight, looped_ratio, looped, income_per_count, weekday, weight_per_count, length",99.45333888238889
+Top-15,count,15,0.1786758210046918,0.6069057104913679,0.352213973855294,0.01782854099292308,"income_tz, year, income_per_neighbor, month, day, income, neighbors, weight, looped_ratio, looped, income_per_count, weekday, weight_per_count, length, count",100.00000000000446

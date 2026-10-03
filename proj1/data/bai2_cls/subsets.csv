@@ -1,0 +1,9 @@
+subset,n_features,MAE,accuracy,macro_f1,train_time_s,features,improvement_pct,mae_vs_all
+Baseline (không dùng đặc trưng),0,0.19857740172832747,0.5,0.09523809523809523,0.0,,0.0,0.019901580723634793
+Tất cả 15 đặc trưng,15,0.17867582100469268,0.6069057104913679,0.352213973855294,0.028817542013712227,"length, weight, count, looped, neighbors, income, income_per_count, income_per_neighbor, weight_per_count, looped_ratio, income_tz, year, day, month, weekday",100.0,0.0
+Loại dư thừa |r_ij| ≥ 0.95,14,0.17864729585560699,0.6069660750935651,0.35141887595538074,0.03249258396681398,"income_tz, year, income_per_neighbor, month, income, neighbors, weight, looped_ratio, looped, income_per_count, weekday, weight_per_count, length, count",100.14333107245001,-2.8525149085689705e-05
+Top-9 theo R,9,0.18009854505967485,0.600929614873838,0.34689689186240147,0.02173629100434482,"income_tz, year, income_per_neighbor, month, day, income, neighbors, weight, looped_ratio",92.85120074259946,0.0014227240549821718
+Top-9 + loại dư thừa ≥ 0.95,8,0.1800834478945266,0.6006881564650489,0.34640673640729436,0.015909207984805107,"income_tz, year, income_per_neighbor, month, income, neighbors, weight, looped_ratio",92.92705986835382,0.001407626889833924
+Top-2 theo R,2,0.18489030254968947,0.5206446939514668,0.15587986003656543,0.009249875089153647,"income_tz, year",68.77392991393606,0.006214481544996792
+Top-1 theo R,1,0.18444324826513905,0.4911264034770011,0.09450245664572032,0.012197125004604459,income_tz,71.02025542324347,0.005767427260446378
+Đối chứng: 6 đặc trưng R thấp nhất,6,0.1943443898347294,0.5,0.09523809523809523,0.015677332994528115,"looped, income_per_count, weekday, weight_per_count, length, count",21.269727025105144,0.015668568830036728

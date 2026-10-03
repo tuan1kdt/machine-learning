@@ -1,0 +1,13 @@
+subset,model,n_features,MAE,accuracy,macro_f1,train_time_s,features
+Tất cả 15 đặc trưng,LinearRegression,15,0.17867582100469268,0.6069057104913679,0.352213973855294,0.020037499954923987,"length, weight, count, looped, neighbors, income, income_per_count, income_per_neighbor, weight_per_count, looped_ratio, income_tz, year, day, month, weekday"
+Tất cả 15 đặc trưng,LogisticRegression,15,0.1438442672175095,0.6197633707593867,0.396227468290615,1.4749062499031425,
+Loại dư thừa ≥ 0.95,LinearRegression,14,0.17864729585560699,0.6069660750935651,0.35141887595538074,0.01657824998255819,"income_tz, year, income_per_neighbor, month, income, neighbors, weight, looped_ratio, looped, income_per_count, weekday, weight_per_count, length, count"
+Loại dư thừa ≥ 0.95,LogisticRegression,14,0.1439435172900995,0.619159724737414,0.3961825148968611,1.142189915990457,
+Top-9 theo R,LinearRegression,9,0.18009854505967485,0.600929614873838,0.34689689186240147,0.011952500091865659,"income_tz, year, income_per_neighbor, month, day, income, neighbors, weight, looped_ratio"
+Top-9 theo R,LogisticRegression,9,0.14625685538548788,0.6116745140649523,0.38591820632739676,1.9388641669647768,
+Top-9 + loại dư thừa ≥ 0.95,LinearRegression,8,0.1800834478945266,0.6006881564650489,0.34640673640729436,0.010941165965050459,"income_tz, year, income_per_neighbor, month, income, neighbors, weight, looped_ratio"
+Top-9 + loại dư thừa ≥ 0.95,LogisticRegression,8,0.14634000895542112,0.6105879512254014,0.38508547052944037,1.683041415992193,
+Top-2 theo R,LinearRegression,2,0.18489030254968947,0.5206446939514668,0.15587986003656543,0.0074073749128729105,"income_tz, year"
+Top-2 theo R,LogisticRegression,2,0.17034782617343788,0.5138838585053724,0.22763189093990815,0.27880545903462917,
+6 đặc trưng R thấp nhất,LinearRegression,6,0.1943443898347294,0.5,0.09523809523809523,0.009478249936364591,"looped, income_per_count, weekday, weight_per_count, length, count"
+6 đặc trưng R thấp nhất,LogisticRegression,6,0.19281909808040312,0.491548955692382,0.10459425003891552,0.5051009999588132,
