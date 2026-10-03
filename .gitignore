@@ -1,3 +1,5 @@
+.claude/
+.idea/
 # Dataset / Training data
 BitcoinHeistData.csv
 

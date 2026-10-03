@@ -202,10 +202,10 @@ nhất câu này.
 | 3 | Bộ dữ liệu | 40 s | 2,92 triệu dòng, 29 nhãn, 98,6% white: mất cân bằng nặng. |
 | 4 | Các trường | 45 s | 6 đặc trưng đồ thị + thời gian + income; có cả numerical lẫn categorical. |
 | 5 | Khám phá | 45 s | 3 phát hiện: mất cân bằng, year quan trọng, cột số lệch nên dùng log1p. |
-| 6 | Quy trình | 50 s | Chuẩn hoá nằm trong Pipeline, chỉ fit trên train, nên không rò rỉ. |
+| 6 | Quy trình | 60 s | Chuẩn hoá nằm trong Pipeline, chỉ fit trên train, nên không rò rỉ. |
 | 7 | 6 mô hình | 60 s | 4 nhóm thuật toán: tuyến tính, khoảng cách, bagging, boosting. |
-| 8 | Độ đo | 50 s | Luôn đoán white vẫn được accuracy 98,6%, nên chọn theo macro F1. |
-| 9 | Mất cân bằng | 60 s | A và B phải đi cùng nhau: 0,464 lên 0,544. |
+| 8 | Mất cân bằng | 60 s | A và B phải đi cùng nhau: 0,464 lên 0,544. |
+| 9 | Độ đo | 50 s | Luôn đoán white vẫn được accuracy 98,6%, nên chọn theo macro F1. |
 | 10 | Kết quả | 60 s | XGBoost: macro F1 0,575, weighted F1 0,985, test 0,75 s. |
 | 11 | Từng lớp | 45 s | Tốt: CryptXXX 0,86, Locky 0,73. Khó: otherRansom 0,11. |
 | 12 | Thời gian | 45 s | KNN train 0 s nhưng test 14 s; XGBoost cân bằng nhất. |
