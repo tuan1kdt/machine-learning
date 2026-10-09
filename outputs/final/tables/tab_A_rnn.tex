@@ -1,0 +1,21 @@
+\begin{table}[H]\centering\scriptsize
+\caption{Biểu diễn A — các cấu hình RNN (chia ngẫu nhiên). Ep.: epoch tốt nhất/số epoch đã chạy; s/ep.: giây mỗi epoch khi chạy song song (xem Bảng~\ref{tab:bench} cho tốc độ đo riêng).}\label{tab:A_rnn}
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}p{3.6cm}rrrrrrr>{\raggedright\arraybackslash}X@{}}
+\toprule
+Cấu hình & Kiến trúc chính & LR & Batch & Ep. & Tham số & s/ep. & Macro F1 & F1 nhị phân & Nhận xét \\
+\midrule
+\code{A\_bigru} & BiGRU 1x64, last & 1e-3 & 512 & 30/40 & 42.279 & 1.55 & \textbf{0.5365 $\pm$ 0.0037} & 0.4675 & hội tụ sớm hơn, cao nhất nhóm A (trong dao động seed) \\
+\code{A\_gru\_2l} & GRU 2x64, last & 1e-3 & 512 & 49/59 & 47.399 & 1.49 & 0.5358 $\pm$ 0.0073 & 0.4614 & thêm tầng: cải thiện rất nhỏ \\
+\code{A\_lstm\_2l} & LSTM 2x64, last & 1e-3 & 512 & 49/59 & 60.967 & 0.81 & 0.5350 $\pm$ 0.0024 & 0.4631 & thêm tầng: chênh lệch trong mức dao động seed \\
+\code{A\_lstm} & LSTM 1x64, last & 1e-3 & 512 & 50/60 & 27.687 & 0.71 & 0.5329 $\pm$ 0.0032 & 0.4619 & cấu hình gốc RNN \\
+\code{A\_gru\_attn} & GRU 1x64, attn & 1e-3 & 512 & 47/57 & 22.504 & 1.64 & 0.5320 & 0.4743 & attention $\approx$ hidden cuối \\
+\code{A\_gru\_mean} & GRU 1x64, mean & 1e-3 & 512 & 42/52 & 22.439 & 1.49 & 0.5305 & 0.4607 & mean pooling $\approx$ hidden cuối \\
+\code{A\_gru\_h128} & GRU 1x128, last & 1e-3 & 512 & 35/45 & 66.855 & 1.53 & 0.5268 & 0.4645 & gấp 3 tham số, không tốt hơn \\
+\code{A\_gru\_bs2048} & GRU 1x64, last & 1e-3 & 2048 & 98/100 & 22.439 & 0.40 & 0.5254 & 0.4625 & batch lớn: ít bước cập nhật, chạm giới hạn 100 epoch \\
+\code{A\_gru\_nodrop} & GRU 1x64, last, do 0.0 & 1e-3 & 512 & 63/73 & 22.439 & 1.45 & 0.5245 & 0.4550 & bỏ dropout: khoảng cách train--val lớn hơn \\
+\code{A\_gru} & GRU 1x64, last & 1e-3 & 512 & 42/52 & 22.439 & 0.76 & 0.5237 $\pm$ 0.0040 & 0.4606 & ít tham số hơn LSTM 19\%, thấp hơn nhẹ \\
+\code{A\_gru\_lr3e-4} & GRU 1x64, last & 3e-4 & 512 & 84/94 & 22.439 & 1.49 & 0.5082 & 0.4422 & lr nhỏ: hội tụ chậm, underfit \\
+\bottomrule
+\end{tabularx}
+\end{table}

@@ -1,0 +1,63 @@
+\section{Mô tả bộ dữ liệu}
+
+\paragraph{Nguồn.} \emph{BitcoinHeistRansomwareAddressDataset} (UCI Machine Learning Repository; Akcora và cộng sự~[1]).
+Dữ liệu gồm \textbf{2.916.697 dòng}, 10 cột, giai đoạn 2011--2018, \textbf{2.631.095 địa chỉ} khác nhau.
+Mỗi dòng mô tả một địa chỉ Bitcoin trong một ngày (24 giờ), với các đặc trưng được tính từ đồ thị giao dịch (Bảng~\ref{tab:cols}).
+
+\begin{table}[H]\centering\small
+\caption{Các cột của bộ dữ liệu.}\label{tab:cols}
+\begin{tabularx}{\linewidth}{llX}
+\toprule
+Cột & Kiểu & Ý nghĩa \\ \midrule
+\code{address} & chuỗi & Địa chỉ Bitcoin (định danh, không dùng làm đặc trưng trực tiếp) \\
+\code{year}, \code{day} & số nguyên & Năm (2011--2018) và ngày trong năm (1--365) \\
+\code{length} & số & Độ dài chuỗi giao dịch dài nhất dẫn tới địa chỉ (0--144) \\
+\code{weight} & số & Lượng ``đầu vào'' được gộp về địa chỉ \\
+\code{count} & số & Số chuỗi giao dịch dẫn tới địa chỉ \\
+\code{looped} & số & Số giao dịch tách ra rồi gộp lại (dấu hiệu ``trộn'' tiền) \\
+\code{neighbors} & số & Số giao dịch có địa chỉ là đầu ra \\
+\code{income} & số & Số satoshi nhận được ($1$~BTC $=10^8$ satoshi), từ $3\cdot10^7$ đến $5\cdot10^{13}$ \\
+\code{label} & phân loại & \code{white} hoặc tên họ ransomware (28 họ) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Phân bố nhãn --- mất cân bằng nghiêm trọng.} Lớp \code{white} chiếm \textbf{98,58\%}; 6 lớp ransomware cộng lại chỉ có
+41.413 dòng (1,42\%), lớp nhỏ nhất (\code{otherRansom}) chỉ 1.441 dòng (Bảng~\ref{tab:labels}). Vì vậy \emph{accuracy} gần như
+vô nghĩa (đoán toàn \code{white} đã đạt 98,6\%); độ đo chính của đồ án là \textbf{macro F1} (trung bình F1 của 7 lớp, mỗi lớp
+có trọng số như nhau), kèm F1 nhị phân ``ransomware hay không'', precision/recall từng lớp và ma trận nhầm lẫn.
+
+\begin{table}[H]\centering\small
+\caption{Phân bố 7 lớp và đặc điểm ``lặp lại'' của địa chỉ (tính trên toàn bộ dữ liệu).
+\emph{Lần đầu}: tỉ lệ dòng mà địa chỉ chưa từng xuất hiện trước đó; \emph{trung vị số lần trước}: số lần địa chỉ đã xuất hiện ở các ngày trước.}
+\label{tab:labels}
+\begin{tabular}{lrrrrr}
+\toprule
+Lớp & Số dòng & Tỉ lệ (\%) & Số địa chỉ & Lần đầu (\%) & Trung vị số lần trước \\ \midrule
+\code{white} & 2.875.284 & 98,580 & 2.610.246 & 90,8 & 0 \\
+\code{paduaCryptoWall} & 12.390 & 0,425 & 1.894 & 15,3 & 5 \\
+\code{montrealCryptoLocker} & 9.315 & 0,319 & 1.509 & 16,2 & 13 \\
+\code{princetonCerber} & 9.223 & 0,316 & 9.177 & 99,5 & 0 \\
+\code{princetonLocky} & 6.625 & 0,227 & 6.584 & 99,4 & 0 \\
+\code{montrealCryptXXX} & 2.419 & 0,083 & 1.354 & 56,0 & 0 \\
+\code{otherRansom} & 1.441 & 0,049 & 331 & 23,0 & 6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Các đặc điểm quan trọng.}
+\begin{itemize}
+\item \textbf{Đặc trưng lệch rất mạnh}: \code{income} trải dài 6 bậc độ lớn, \code{count}/\code{looped} có trung vị 1/0 nhưng
+  tối đa $\approx 14.500$ $\Rightarrow$ cần biến đổi $\log(1+x)$ trước khi chuẩn hoá.
+\item \textbf{\code{white} được lấy mẫu cố định 1.000 dòng/ngày} (365.000 dòng mỗi năm), còn ransomware thì lấy đủ. Tỉ lệ ransomware
+  thay đổi mạnh theo năm (0,001\% năm 2018 đến 4,1\% năm 2016) nên năm/tháng là thông tin hữu ích.
+\item \textbf{Địa chỉ có thể xuất hiện nhiều ngày} (Bảng~\ref{tab:labels}). Đây là điểm mấu chốt cho biểu diễn chuỗi B:
+  \code{CryptoLocker}, \code{CryptoWall}, \code{otherRansom} \emph{tái sử dụng} địa chỉ rất nhiều (chỉ 15--23\% dòng là lần đầu),
+  trong khi \code{Cerber}, \code{Locky} gần như luôn dùng địa chỉ mới (99,5\%), giống \code{white} (90,8\%).
+  Không có địa chỉ nào mang hai nhãn khác nhau.
+\item Hệ quả: nếu chia train/test ngẫu nhiên theo dòng, \textbf{cùng một địa chỉ ransomware có thể nằm ở cả train và test}
+  (55\% dòng ransomware trong test có địa chỉ đã xuất hiện trong train). Biểu diễn B vì vậy bắt buộc phải \emph{chia theo địa chỉ}.
+\end{itemize}
+
+\paragraph{Dạng bài toán.} Phân loại có giám sát, đa lớp, dữ liệu bảng, mất cân bằng nặng.
+Dữ liệu \emph{không} phải ảnh, văn bản hay chuỗi thời gian ``tự nhiên'' --- mục~\ref{sec:repr} trình bày cách chuyển đổi để dùng RNN và CNN.

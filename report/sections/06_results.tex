@@ -1,0 +1,153 @@
+\section{Kết quả thực nghiệm}\label{sec:results}
+
+Tất cả số liệu là trên \textbf{tập test}, sau khi chọn epoch (early stopping trên \code{val\_us}) và trọng số lớp $w$ (trên
+validation). Với cấu hình chạy 3 seed (42, 43, 44), bảng ghi trung bình $\pm$ độ lệch chuẩn của macro F1; các cột khác lấy
+trung bình. Cột ``Ep.'' là \emph{epoch tốt nhất / số epoch đã chạy} (early stopping dừng sau 10 epoch không cải thiện).
+
+\subsection{Biểu diễn A --- mỗi đặc trưng là một bước (chia ngẫu nhiên, so sánh với Bài 1)}
+
+\input{\tabdir/tab_A_rnn}
+\input{\tabdir/tab_A_cnn}
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.82\linewidth]{bars_A.png}
+\caption{Biểu diễn A: macro F1 trên test của mọi cấu hình RNN/CNN/MLP và các mô hình của Bài 1 (cùng cách chia, cùng tiền xử lý).
+Vạch đen: độ lệch chuẩn qua 3 seed.}\label{fig:bars_A}
+\end{figure}
+
+\paragraph{Nhận xét.}
+\begin{itemize}
+\item Mọi cấu hình RNN nằm trong khoảng macro F1 0,51--0,54, CNN trong khoảng 0,50--0,53. Tốt nhất là \code{A\_bigru}, \code{A\_gru\_2l}, \code{A\_lstm\_2l}
+  ($\approx$0,535--0,537) và \code{A\_cnn\_bn} (0,528). Độ lệch chuẩn giữa các seed là 0,002--0,007, nên phần lớn
+  khác biệt giữa các biến thể RNN (LSTM/GRU, 1/2 tầng, một/hai chiều, last/mean/attention) \textbf{không có ý nghĩa thống kê}.
+\item \textbf{MLP} (không coi dữ liệu là chuỗi) đạt $\approx$0,52 --- ngang RNN/CNN. Việc ``xếp 11 đặc trưng thành chuỗi''
+  không mang lại thông tin mới: thứ tự các đặc trưng là tuỳ ý, phép tích chập trên ``đặc trưng kề nhau'' và trạng thái ẩn ``truyền
+  từ đặc trưng này sang đặc trưng kia'' không có ý nghĩa vật lý. Đúng như đề bài cảnh báo ở mục 14.
+\item \textbf{XGBoost của Bài 1 (0,575) vẫn tốt hơn mọi mạng nơ-ron trên biểu diễn A} (kể cả Random Forest 0,555 cũng hơn).
+  Điều này khớp với kết quả đã biết: với dữ liệu bảng có đặc trưng lệch phân phối mạnh và quan hệ dạng ngưỡng, mô hình cây vẫn mạnh
+  hơn mạng nơ-ron [9]. Mạng nơ-ron chỉ vượt Logistic Regression (0,347) và KNN (0,416).
+\item Learning rate nhỏ ($3\cdot10^{-4}$) cho kết quả kém nhất ở cả RNN và CNN (underfit, xem mục~\ref{sec:analysis});
+  batch 2048 làm số bước cập nhật mỗi epoch giảm 4 lần, mô hình GRU chạm giới hạn 100 epoch trước khi hội tụ.
+\item Với CNN, thêm BatchNorm giúp hội tụ nhanh và cho kết quả tốt nhất; Dropout (0,3) và GAP làm giảm kết quả --- mô hình
+  $\approx$23 nghìn tham số trên 126 nghìn mẫu không thừa năng lực, điều chuẩn thêm chỉ làm nó underfit. Flatten tốt hơn GAP vì
+  ở biểu diễn A \emph{vị trí} chính là \emph{danh tính của đặc trưng}.
+\end{itemize}
+
+\subsection{Biểu diễn B --- lịch sử của địa chỉ (chia theo địa chỉ)}
+
+\input{\tabdir/tab_B}
+\input{\tabdir/tab_group_other}
+
+\begin{figure}[H]\centering
+\includegraphics[width=0.78\linewidth]{bars_B.png}
+\caption{Cùng cách chia theo địa chỉ: biểu diễn B, các biến thể đối chứng, XGBoost với 3 mức thông tin lịch sử và biểu diễn A.}
+\label{fig:bars_B}
+\end{figure}
+
+\paragraph{Nhận xét.}
+\begin{itemize}
+\item \textbf{Biểu diễn B tăng macro F1 từ $\approx$0,53 lên $\approx$0,72--0,74} so với chính các mô hình đó trên biểu diễn A
+  (cùng cách chia theo địa chỉ, Bảng~\ref{tab:group_other}). Đây là thông tin thật sự mới mà một dòng đơn lẻ không có: một địa
+  chỉ ransomware (CryptoLocker, CryptoWall) nhận tiền nhiều ngày liên tiếp với mẫu hành vi lặp lại.
+\item \textbf{Mô hình nơ-ron tốt nhất là CNN}: \code{B\_cnn\_k5} (0,742) và \code{B\_cnn\_3l} (0,737); RNN tốt nhất là
+  \code{B\_gru\_2l} (0,735 $\pm$ 0,004). Trên B, \emph{tăng trường nhìn} (kernel 5, thêm tầng) có ích vì chuỗi dài hơn
+  (tới 16 bước) và mẫu hành vi trải dài nhiều lần xuất hiện.
+\item \textbf{Phần lợi ích do chuỗi mang lại}: \code{B\_gru\_L1} (chỉ bước hiện tại, nhưng có cờ ``lần đầu'' và khoảng cách ngày)
+  đạt 0,660; L=4 đạt 0,712 và L=16 đạt 0,720. So với biểu diễn A trên cùng cách chia ($\approx$0,53), riêng việc \emph{biết địa chỉ
+  từng xuất hiện} đã cho +0,13, và việc \emph{nhìn thấy nội dung các lần xuất hiện trước} cho thêm +0,06--0,08. L=32 không tốt hơn (0,692; dừng sớm ở epoch 26):
+  địa chỉ có $>$16 lần xuất hiện rất ít, phần đệm dài chỉ thêm nhiễu.
+\item \textbf{Đối chứng công bằng với XGBoost}: XGBoost chỉ dùng dòng hiện tại đạt 0,565; thêm 3 đặc trưng đếm
+  (số lần đã xuất hiện, cờ lần đầu, khoảng cách ngày) đạt 0,759; thêm trung bình/max lịch sử đạt \textbf{0,767 --- tốt nhất toàn
+  bộ đồ án}. Khi được cho cùng thông tin lịch sử dưới dạng đặc trưng tổng hợp thủ công, mô hình cây vẫn hơn RNN/CNN $\approx$0,025.
+\item Biến thể \code{\_cnt} (thêm chính 3 đặc trưng đếm vào đầu vào phụ) không giúp GRU (0,722 so với 0,720, trong độ dao động seed) và
+  không giúp CNN (0,731 so với 0,731): RNN/CNN \emph{đã tự học được} thông tin đếm từ chuỗi. Ngược lại, MLP cần nó (0,655 $\to$ 0,712).
+\item LSTM và GRU cho kết quả gần nhau, chênh lệch $\le$0,01 và không nhất quán về chiều (A 1 tầng: LSTM hơn 0,009; A 2 tầng:
+  bằng nhau; B: GRU hơn 0,005) --- không có loại nào vượt trội rõ ràng. Bi-GRU không giúp ở B: bước cuối
+  (ngày hiện tại) là quan trọng nhất và đã được RNN một chiều đọc sau cùng. Mean pooling kém hơn hidden cuối vì làm loãng bước
+  hiện tại.
+\end{itemize}
+
+\subsection{Kết quả theo độ dài lịch sử}
+
+Bảng~\ref{tab:by_len} tách tập test theo số lần địa chỉ đã xuất hiện (tính cả ngày hiện tại).
+
+\input{\tabdir/tab_by_len}
+
+\begin{itemize}
+\item Với địa chỉ \textbf{đã xuất hiện $\ge$ 3 lần}, RNN/CNN có lịch sử vượt XGBoost-lịch sử: ví dụ nhóm 6--15 lần
+  F1 0,943 (\code{B\_cnn\_k5}) so với 0,885; nhóm $>$15 lần 0,973 (\code{B\_gru}) so với 0,937. Mô hình chuỗi khai thác được
+  \emph{chi tiết từng lần xuất hiện} mà mean/max thủ công làm mất.
+\item Với địa chỉ \textbf{xuất hiện lần đầu} (90\% số dòng test, 53\% số dòng ransomware), không có lịch sử nào để học, và
+  XGBoost tốt hơn rõ (0,648 so với $\approx$0,55): mô hình cây khai thác đặc trưng của dòng hiện tại tốt hơn mạng nơ-ron
+  (đúng như kết quả ở biểu diễn A). Vì nhóm này chiếm đa số, XGBoost thắng trên toàn bộ tập test.
+\item Đường \code{B\_gru\_L1}/\code{B\_mlp} (không thấy nội dung lịch sử) tăng theo số lần xuất hiện chỉ nhờ cờ ``lần đầu'' và
+  $\Delta$ngày; \code{B\_mlp\_cnt} (biết số lần đã xuất hiện) cao hơn, và RNN/CNN thấy toàn bộ chuỗi cao nhất ở các nhóm dài.
+\end{itemize}
+
+\subsection{F1 từng lớp và ma trận nhầm lẫn}
+
+\input{\tabdir/tab_per_class}
+
+\begin{figure}[H]\centering
+\begin{subfigure}{0.32\linewidth}\includegraphics[width=\linewidth]{cm_A_random_A_bigru.png}\caption{RNN tốt nhất (A)}\end{subfigure}
+\begin{subfigure}{0.32\linewidth}\includegraphics[width=\linewidth]{cm_B_group_B_cnn_k5.png}\caption{CNN tốt nhất (B)}\end{subfigure}
+\begin{subfigure}{0.32\linewidth}\includegraphics[width=\linewidth]{cm_baseline_group_XGB_hist.png}\caption{XGBoost + lịch sử}\end{subfigure}
+\caption{Ma trận nhầm lẫn trên tập test (chuẩn hoá theo hàng = recall từng lớp). Các ma trận khác nằm trong thư mục
+\code{outputs/final/figures/} và notebook.}\label{fig:cm}
+\end{figure}
+
+\begin{itemize}
+\item Lịch sử địa chỉ cải thiện mạnh các họ \textbf{tái sử dụng địa chỉ}: CryptoLocker 0,26 $\to$ 0,70, CryptoWall 0,38 $\to$ 0,84,
+  otherRansom 0,08 $\to$ 0,66 (CNN-B; ở lớp này CNN-B còn vượt XGBoost-lịch sử 0,536).
+\item Các họ \textbf{dùng địa chỉ mới mỗi lần} (Cerber, Locky: 99\% dòng là lần đầu xuất hiện) không được lợi gì từ lịch sử;
+  ở đây XGBoost hơn mạng nơ-ron (Cerber 0,63 so với 0,52--0,56; Locky 0,745 so với 0,65--0,67).
+\item Ma trận nhầm lẫn cho thấy lỗi \textbf{gần như hoàn toàn là nhầm giữa ransomware và white}; nhầm giữa các họ ransomware với
+  nhau rất hiếm (55 trên 7.911 dòng ransomware với \code{B\_cnn\_k5}). Khó khăn của bài toán là \emph{phát hiện}, không phải
+  \emph{phân biệt họ}.
+\end{itemize}
+
+\paragraph{Phân tích dự đoán sai (\code{B\_cnn\_k5}, chia theo địa chỉ).} Mô hình bỏ sót 2.694/7.911 dòng ransomware (34\%), trong
+đó 78\% là địa chỉ xuất hiện lần đầu; 82\% trong 1.634 báo động nhầm cũng rơi vào địa chỉ lần đầu. Tách theo họ: với CryptoLocker,
+CryptoWall và otherRansom, recall trên các dòng \emph{lặp lại} là 0,69/0,92/0,72 nhưng trên các dòng \emph{lần đầu} gần bằng 0 ---
+mạng nơ-ron gần như chỉ nhận ra các họ này qua lịch sử, trong khi XGBoost-lịch sử vẫn bắt được 26\%/11\%/11\% dòng lần đầu nhờ đặc
+trưng của chính giao dịch. Notebook (mục 10) liệt kê các dòng sai với độ tin cậy cao nhất và ví dụ chuỗi lịch sử tương ứng.
+
+\subsection{Tốc độ huấn luyện}
+
+Thời gian/epoch trong các bảng trên đo khi 6--8 tiến trình huấn luyện chạy song song trên cùng GPU, nên chỉ mang tính tham khảo.
+Bảng~\ref{tab:bench} đo lại \emph{riêng từng mô hình} trên GPU rảnh.
+
+\IfFileExists{\tabdir/tab_bench.tex}{\input{\tabdir/tab_bench}}{\textit{(Bảng đo tốc độ sẽ được sinh bởi \code{final/benchmark.py}.)}}
+
+\begin{itemize}
+\item \textbf{MLP nhanh nhất} (0,29--0,33 s/epoch): không có chiều chuỗi.
+\item Ở biểu diễn A (chuỗi chỉ 11 bước, độ dài cố định), RNN 1 tầng và CNN 2 lớp có tốc độ \emph{gần như nhau}
+  (0,39--0,43 s/epoch): cuDNN tối ưu RNN rất tốt cho chuỗi ngắn, còn chi phí BatchNorm/Dropout làm CNN chậm thêm (0,55 s).
+  Thêm tầng làm chậm cả hai (LSTM 2 tầng 0,65 s, CNN 3 lớp 0,73 s).
+\item Ở biểu diễn B (16 bước, độ dài thay đổi), \textbf{CNN nhanh hơn RNN} $\approx$25\% (0,68 so với 0,89--0,92 s/epoch):
+  tích chập tính song song trên mọi vị trí, còn RNN phải tính tuần tự và xử lý \code{pack\_padded\_sequence}. Bi-GRU chậm nhất
+  (2,14 s/epoch, gấp 2,4 lần GRU một chiều) mà không tốt hơn.
+\item \textbf{GRU ít tham số hơn LSTM} (3 cổng so với 4: 22.439 so với 27.687 tham số ở cấu hình gốc A) và nhanh hơn một chút
+  (0,39 so với 0,41 s; 0,53 so với 0,65 s khi 2 tầng).
+\item Như vậy ở biểu diễn B, CNN vừa \textbf{nhanh hơn} vừa \textbf{tốt hơn} RNN.
+\end{itemize}
+
+\subsection{Trả lời các câu hỏi của đề}
+
+\begin{itemize}
+\item \textbf{Mô hình tốt nhất?} Trong các mạng nơ-ron: \code{B\_cnn\_k5} (CNN 1 chiều trên lịch sử địa chỉ, macro F1 0,742).
+  Trên toàn bộ đồ án: XGBoost với đặc trưng lịch sử tổng hợp (0,767). Với cùng thông tin một dòng (biểu diễn A), XGBoost Bài 1
+  (0,575) tốt hơn mọi RNN/CNN ($\le$0,54).
+\item \textbf{Vì sao?} Yếu tố quyết định là \emph{thông tin đầu vào}, không phải loại mạng: thêm lịch sử địa chỉ tăng
+  $\approx$0,2 macro F1, còn mọi thay đổi kiến trúc trong cùng một biểu diễn chỉ thay đổi $\le$0,03. CNN tốt hơn RNN một chút trên B vì
+  mẫu ``nhận tiền lặp lại vài ngày liên tiếp'' là mẫu \emph{cục bộ}, đúng điểm mạnh của tích chập; XGBoost tốt nhất vì phần lớn
+  dòng test không có lịch sử và ở đó mô hình cây dùng đặc trưng dạng bảng hiệu quả hơn.
+\item \textbf{Mô hình nhanh nhất?} MLP (Bảng~\ref{tab:bench}). Trong các mô hình chuỗi: ở A, GRU/LSTM 1 tầng và CNN đơn giản
+  ngang nhau ($\approx$0,4 s/epoch); ở B, CNN nhanh hơn RNN $\approx$25\%.
+\item \textbf{Mô hình ổn định nhất?} Độ lệch chuẩn qua 3 seed của các cấu hình đều nhỏ (0,001--0,008; riêng \code{B\_gru\_cnt} 0,015), nhỏ hơn nhiều so với
+  khoảng cách A--B. CNN có BN + Dropout trên B cho đường validation mượt và khoảng cách train--val nhỏ nhất (mục~\ref{sec:analysis}).
+\item \textbf{Kết quả có hợp lý không?} Có. Accuracy luôn $>$98\% nhưng vô nghĩa (đoán toàn \code{white} đã đạt 98,6\%), nên
+  macro F1 được dùng làm độ đo chính. Lớp \code{white} luôn có F1 $\approx$0,99; các họ có nhiều địa chỉ lặp lại được cải thiện mạnh
+  nhờ lịch sử, các họ dùng địa chỉ một lần thì không --- đúng với phân tích dữ liệu ở mục 2. Cách chia theo địa chỉ đảm bảo kết
+  quả của B không đến từ việc ``nhớ'' địa chỉ đã thấy khi huấn luyện.
+\end{itemize}

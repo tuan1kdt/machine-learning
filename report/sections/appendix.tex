@@ -1,0 +1,43 @@
+\section{Mã nguồn và cách chạy lại}\label{app:code}
+
+\paragraph{Cấu trúc.}
+\begin{itemize}
+\item \code{final/data.py} --- đọc dữ liệu, tạo nhãn 7 lớp và đặc trưng, chia ngẫu nhiên / theo địa chỉ, undersampling, dựng lịch sử
+  địa chỉ (biểu diễn B), chuẩn hoá (chỉ tính trên train).
+\item \code{final/models.py} --- \code{FeatureTokenizer} (biểu diễn A), \code{RNNNet} (LSTM/GRU, 1--2 tầng, một/hai chiều,
+  last/mean/attention, \code{pack\_padded\_sequence}), \code{CNNNet} (Conv1D, BN, Dropout, Max/Avg pooling, Flatten/GAP/GMP có mặt nạ),
+  \code{MLPNet}.
+\item \code{final/configs.py} --- toàn bộ cấu hình thực nghiệm (tên, kiến trúc, siêu tham số).
+\item \code{final/train.py} --- huấn luyện với early stopping, ghi lịch sử từng epoch, hiệu chỉnh trọng số lớp trên validation,
+  đánh giá test; lưu \code{history.json}, \code{result.json}, \code{model.pt}, \code{pred\_test.npy} vào
+  \code{outputs/final/<biểu diễn>\_<cách chia>/<cấu hình>/}.
+\item \code{final/baselines.py} --- XGBoost (GPU) trên hai cách chia với 3 mức thông tin lịch sử.
+\item \code{final/benchmark.py} --- đo tốc độ huấn luyện từng mô hình khi chạy riêng.
+\item \code{final/report.py} --- tổng hợp kết quả thành các bảng LaTeX/CSV (\code{outputs/final/tables/}) và hình
+  (\code{outputs/final/figures/}) dùng trong báo cáo.
+\item \code{final\_project.ipynb} --- notebook trình bày đầu--cuối: thống kê dữ liệu, minh hoạ hai biểu diễn, in kiến trúc, bảng kết quả,
+  đường cong huấn luyện, ma trận nhầm lẫn, dự đoán mẫu và phân tích lỗi. Mặc định notebook \emph{nạp kết quả đã huấn luyện};
+  đặt \code{RETRAIN = True} để huấn luyện lại một số cấu hình tiêu biểu ngay trong notebook.
+\end{itemize}
+
+\paragraph{Cách chạy.} Cần Python 3.12, các thư viện trong \code{requirements.txt} (thêm PyTorch có CUDA nếu dùng GPU) và tệp
+\code{BitcoinHeistData.csv} ở thư mục gốc. Siêu tham số XGBoost được đọc từ \code{exp\_out/best\_params.json} (kết quả tinh chỉnh
+của Bài 1).
+{\footnotesize
+\begin{verbatim}
+pip install -r requirements.txt
+python -m final.train --rep A            # mọi cấu hình A, chia ngẫu nhiên
+python -m final.train --rep B            # mọi cấu hình B, chia theo địa chỉ
+python -m final.train --rep A --split group --only A_gru+A_lstm+A_mlp+A_cnn_bn_do
+python -m final.train --rep B --seeds 43+44 --only B_gru+B_cnn_bn_do  # seed khác
+python -m final.baselines                # XGBoost
+python -m final.benchmark                # đo tốc độ (khi GPU rảnh)
+python -m final.report                   # bảng + hình
+cd report && latexmk -xelatex main.tex   # biên dịch báo cáo
+\end{verbatim}
+}
+Có thể chạy nhiều tiến trình \code{final.train} song song với cùng tham số: mỗi tiến trình ``nhận'' một cấu hình chưa chạy
+(qua một tệp khoá) nên không chạy trùng. Thời gian: $\approx$0,5--2,5 phút/cấu hình A và 0,5--7 phút/cấu hình B trên GPU RTX PRO 4000 (khi chạy song song).
+
+\paragraph{Tái lập.} Chia dữ liệu và undersampling luôn dùng \code{random\_state=42}; seed huấn luyện (42, 43, 44) cố định khởi tạo trọng số và thứ tự batch. Do một số phép
+toán cuDNN không tất định, chạy lại có thể khác ở chữ số thập phân thứ 3 --- nhỏ hơn độ dao động giữa các seed.

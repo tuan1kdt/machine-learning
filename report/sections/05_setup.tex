@@ -1,0 +1,31 @@
+\section{Thiết lập thực nghiệm}\label{sec:setup}
+
+\paragraph{Môi trường.} PyTorch 2.11 (CUDA 12.8), GPU NVIDIA RTX PRO 4000 Blackwell 24\,GB (máy chủ Trainbox, Windows), Python 3.12.
+Toàn bộ dữ liệu của tập train/validation/test được đặt sẵn trên GPU; batch được cắt theo chỉ số dòng. Mã nguồn: thư mục \code{final/}
+(\code{data.py}, \code{models.py}, \code{configs.py}, \code{train.py}, \code{baselines.py}, \code{report.py}) và notebook
+\code{final\_project.ipynb}.
+
+\paragraph{Huấn luyện (chung cho mọi mạng nơ-ron).}
+\begin{itemize}
+\item Hàm mất mát: \textbf{cross-entropy} trên đầu ra softmax 7 lớp. Thuật toán tối ưu: \textbf{Adam}, learning rate $10^{-3}$
+  (biến thể $3\cdot10^{-4}$), batch size 512 (biến thể 2048), cắt gradient theo chuẩn $\le 1$.
+\item Tối đa 100 epoch, \textbf{early stopping} theo macro F1 trên \code{val\_us} với patience 10; giữ lại trọng số của epoch tốt nhất.
+\item Sau huấn luyện: tìm trọng số lớp $w$ trên toàn bộ validation $\to$ đánh giá test bằng $\arg\max(p\cdot w)$ (mục~\ref{sec:prep}).
+\item Seed 42 cho mọi cấu hình; các cấu hình chính được chạy lại với seed 43, 44 để ước lượng độ dao động
+  (báo cáo trung bình $\pm$ độ lệch chuẩn). Thay đổi seed chỉ thay đổi khởi tạo trọng số và thứ tự batch --- tập dữ liệu giữ nguyên.
+\end{itemize}
+
+\paragraph{Thiết kế thực nghiệm.} Mỗi lần chỉ thay đổi \emph{một} yếu tố so với cấu hình gốc của nhóm để thấy rõ ảnh hưởng:
+\begin{itemize}
+\item \textbf{RNN} (gốc: LSTM 1 tầng $\times$ 64 units, hidden state cuối, dropout 0,2): LSTM $\leftrightarrow$ GRU; 1 $\leftrightarrow$ 2 tầng;
+  64 $\leftrightarrow$ 128 units; một chiều $\leftrightarrow$ hai chiều; hidden cuối $\leftrightarrow$ mean $\leftrightarrow$ attention;
+  dropout 0,2 $\leftrightarrow$ 0; learning rate; batch size; độ dài lịch sử $L\in\{1,4,16,32\}$ (biểu diễn B).
+\item \textbf{CNN} (gốc A: Conv 32-64, kernel 3, MaxPool, Flatten, không BN/Dropout): + BN; + Dropout; + BN + Dropout;
+  Flatten $\leftrightarrow$ GAP; 2 $\leftrightarrow$ 3 lớp; số filters; kernel 3 $\leftrightarrow$ 5; Max $\leftrightarrow$ Average pooling;
+  learning rate; batch size. Biểu diễn B dùng GAP (hoặc Global Max) vì chuỗi có độ dài thay đổi.
+\item \textbf{Đối chứng}: MLP (không coi là chuỗi); \code{B\_gru\_L1} (biểu diễn B nhưng chỉ 1 bước = không có lịch sử);
+  các biến thể \code{\_cnt} thêm đặc trưng đếm vào đầu vào phụ để so sánh công bằng với \code{XGB\_count}.
+\end{itemize}
+
+\paragraph{Độ đo.} Macro F1 (chính), F1 nhị phân ransomware/white, accuracy, precision/recall/F1 có trọng số và macro, F1 từng lớp,
+ma trận nhầm lẫn; thời gian huấn luyện (tổng và trung bình mỗi epoch) và số tham số.

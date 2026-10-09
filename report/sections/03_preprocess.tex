@@ -1,0 +1,41 @@
+\section{Tiền xử lý và chuẩn bị dữ liệu}\label{sec:prep}
+
+\paragraph{Làm sạch.} Dữ liệu không có giá trị thiếu và không có dòng trùng lặp hoàn toàn; không cần điền khuyết.
+Cột \code{address} chỉ dùng để nhóm (dựng lịch sử, chia dữ liệu theo địa chỉ), không đưa trực tiếp vào mô hình.
+
+\paragraph{Định nghĩa nhãn.} 5 họ ransomware nhiều mẫu nhất giữ nguyên tên, 23 họ còn lại gộp thành \code{otherRansom}
+(nhiều họ chỉ có 1--60 dòng, không thể học riêng) $\Rightarrow$ 7 lớp.
+
+\paragraph{Xây dựng đặc trưng (giống Bài 1).}
+\begin{itemize}
+\item 6 đặc trưng gốc: \code{length, weight, count, looped, neighbors, income}.
+\item 5 đặc trưng mới: \code{income\_tz} (số chữ số 0 ở cuối \code{income} --- độ ``tròn'' của số tiền, tiền chuộc thường là số tròn),
+  \code{income\_per\_count}, \code{income\_per\_neighbor}, \code{weight\_per\_count}, \code{looped\_ratio}.
+\item Thời gian: \code{year}, \code{month}, \code{weekday} (tính từ \code{year} + \code{day}), mã hoá \textbf{one-hot}
+  (8 + 12 + 7 = 27 chiều).
+\end{itemize}
+
+\paragraph{Chuẩn hoá.} 11 đặc trưng số được biến đổi $x \mapsto \log(1+x)$ rồi chuẩn hoá $z=(x-\mu)/\sigma$, với $\mu,\sigma$
+\textbf{chỉ tính trên tập train} (tránh rò rỉ thông tin từ validation/test).
+
+\paragraph{Chia dữ liệu.} Tỉ lệ train/validation/test = 64/16/20, cố định \code{random\_state=42}, mọi mô hình trong cùng một
+nhóm thí nghiệm dùng \emph{chung} một cách chia:
+\begin{itemize}
+\item \textbf{Chia ngẫu nhiên phân tầng theo nhãn} (dùng cho biểu diễn A, giống hệt Bài 1):
+  train 1.866.685 / validation 466.672 / test 583.340 dòng (test có 8.283 dòng ransomware).
+\item \textbf{Chia theo địa chỉ} (\code{GroupShuffleSplit}; dùng cho biểu diễn B): mọi dòng của một địa chỉ nằm trọn trong
+  một tập. Train 1.867.045 / validation 466.842 / test 582.810 dòng (7.911 dòng ransomware trong test).
+  Đã kiểm tra: không có địa chỉ nào xuất hiện ở cả train và test.
+\end{itemize}
+
+\paragraph{Xử lý mất cân bằng (giống Bài 1).}
+\begin{enumerate}
+\item \textbf{Undersampling tập train}: giữ ngẫu nhiên 100.000 dòng \code{white} + toàn bộ dòng ransomware
+  $\Rightarrow$ khoảng 126.500 dòng (ransomware chiếm $\approx$21\%). Bài 1 đã chứng minh mức 100k cho macro F1 tốt nhất.
+\item \textbf{Hiệu chỉnh trọng số lớp sau huấn luyện}: mô hình học trên phân bố đã cân bằng nên dự đoán ``nghiêng'' về ransomware.
+  Trên tập \emph{validation} (phân bố thật), ta tìm vector $w\in\mathbb{R}^7$ (dò lưới theo từng lớp, 3 vòng) sao cho
+  $\hat y=\arg\max_k p_k w_k$ có macro F1 cao nhất; $w$ sau đó được giữ cố định khi đánh giá test.
+\end{enumerate}
+Tập validation còn được dùng ở dạng \textbf{val\_us} --- undersample \code{white} cùng tỉ lệ với tập train (31.626 dòng) ---
+để đường cong loss/F1 của train và validation \emph{so sánh được với nhau} và để early stopping.
+\textbf{Tập test chỉ được dùng một lần}, sau khi mô hình, epoch tốt nhất và trọng số $w$ đã được chọn hoàn toàn trên train/validation.

@@ -9,3 +9,4 @@ nbconvert
 ipykernel
 xgboost
 lightgbm
+torch>=2.4

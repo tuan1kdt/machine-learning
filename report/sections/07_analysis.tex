@@ -1,0 +1,78 @@
+\section{Phân tích overfitting / underfitting}\label{sec:analysis}
+
+\paragraph{Cách đọc.} Các đường cong dưới đây vẽ loss (cross-entropy) và macro F1 theo epoch trên tập train (đã undersample) và
+\code{val\_us} (validation undersample \emph{cùng tỉ lệ}), nên hai đường so sánh trực tiếp được. Chấm tròn là epoch được early
+stopping giữ lại. Lưu ý: số liệu train là trung bình \emph{trong lúc huấn luyện} (dropout đang bật, trọng số thay đổi trong epoch),
+nên với mô hình có dropout, F1 train có thể thấp hơn F1 validation. Bảng~\ref{tab:gap} tóm tắt các dấu hiệu chính.
+
+\input{\tabdir/tab_gap}
+
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{curves_A_rnn.png}
+\includegraphics[width=\linewidth]{curves_A_cnn.png}
+\caption{Biểu diễn A: RNN (trên) và CNN đơn giản / + BatchNorm / + Dropout (dưới).}\label{fig:curves_A}
+\end{figure}
+
+\subsection{Biểu diễn A: giới hạn bởi thông tin, không phải bởi năng lực mô hình}
+\begin{itemize}
+\item Khoảng cách train--val rất nhỏ ($\le$0,02 macro F1; loss 0,20 so với 0,23) ở mọi cấu hình, và \textbf{tăng năng lực mô hình}
+  (2 tầng, 128 units, hai chiều, 3 lớp conv, gấp đôi filters) \textbf{không cải thiện} validation. Đây không phải overfitting, cũng
+  không phải underfitting do mô hình quá nhỏ: một dòng đơn lẻ không chứa đủ thông tin để tách ransomware khỏi white (sai số
+  không giảm được --- \emph{irreducible error}). XGBoost trên cùng thông tin cũng chỉ đạt 0,575.
+\item \textbf{Overfit nhẹ}: \code{A\_gru\_nodrop} và \code{A\_cnn\_bn} có F1 train cao nhất (0,77) và val loss đạt cực tiểu sớm hơn
+  epoch tốt nhất (51 so với 63; 47 so với 53) rồi tăng lại (0,232 và 0,229 ở epoch cuối) trong khi train loss tiếp tục giảm --- dấu
+  hiệu kinh điển của overfitting. Early stopping dừng kịp; trên test, mức overfit này gần như không gây hại.
+\item \textbf{Underfit}:
+  \begin{itemize}
+  \item \code{A\_cnn\_do}, \code{A\_cnn\_bn\_do}, \code{A\_mlp}: F1 train \emph{thấp hơn} validation, cả hai đều thấp hơn bản không
+    dropout. Dropout 0,3 với mô hình chỉ $\approx$23 nghìn tham số là điều chuẩn thừa.
+  \item \code{A\_gru\_lr3e-4}: learning rate nhỏ $\Rightarrow$ đường cong tăng chậm, epoch tốt nhất là 84, cả train và val đều thấp
+    hơn (0,71/0,71). \code{A\_gru\_bs2048}: batch lớn $\Rightarrow$ số bước cập nhật/epoch giảm 4 lần, epoch tốt nhất 98/100 ---
+    \emph{chưa hội tụ} khi hết ngân sách epoch (Hình~\ref{fig:curves_reg}).
+  \end{itemize}
+\end{itemize}
+
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{curves_A_reg.png}
+\includegraphics[width=\linewidth]{curves_A_lr.png}
+\caption{Biểu diễn A: ảnh hưởng của dropout và độ phức tạp (trên); learning rate và batch size (dưới).}\label{fig:curves_reg}
+\end{figure}
+
+\subsection{Biểu diễn B: overfitting rõ hơn và vai trò của điều chuẩn}
+\begin{itemize}
+\item Với lịch sử, mô hình có nhiều thông tin hơn nên F1 train lên tới 0,91--0,92, và \textbf{khoảng cách train--val lớn hơn hẳn}
+  (GRU: 0,911 so với 0,855; val loss 0,169 so với train 0,095 ở epoch cuối). Val loss của \code{B\_gru} đạt cực tiểu ở epoch 22 rồi
+  tăng dần, trong khi val F1 vẫn đi ngang/tăng nhẹ đến epoch 53: mô hình tiếp tục \emph{tự tin quá mức} vào các dự đoán sai
+  (loss tăng) dù số dự đoán đúng không giảm (F1 không giảm). Vì đề bài đánh giá bằng F1, early stopping theo F1 thay vì loss
+  là lựa chọn hợp lý; trọng số lớp $w$ hiệu chỉnh sau cũng bù một phần cho xác suất bị lệch.
+\item Nguyên nhân overfit dễ hơn: các dòng của cùng một địa chỉ có lịch sử chồng lấp nhau, nên số mẫu ``độc lập'' thực sự ít hơn
+  nhiều so với 126 nghìn dòng (trong toàn bộ dữ liệu, 3.403 địa chỉ CryptoWall/CryptoLocker tạo ra 21.705 dòng, trong khi 9.223 dòng Cerber đến từ 9.177 địa chỉ); mô hình có thể học thuộc
+  mẫu riêng của từng địa chỉ trong tập train.
+\item \textbf{CNN không điều chuẩn} (\code{B\_cnn\_simple}) overfit nhanh nhất: epoch tốt nhất là 12, chênh F1 tăng từ 0,036 lên
+  0,071 ở epoch cuối, test chỉ 0,686. \textbf{Thêm BatchNorm + Dropout} (\code{B\_cnn\_bn\_do}): train/val loss gần trùng nhau
+  (0,131/0,136), chênh F1 0,016 --- tổng quát hoá tốt nhất --- và test tăng lên 0,724. Đây là điểm khác so với biểu diễn A:
+  \emph{điều chuẩn chỉ có ích khi mô hình thực sự có xu hướng overfit}.
+\item GRU 2 tầng (dropout giữa các tầng) có khoảng cách nhỏ hơn GRU 1 tầng (0,034 so với 0,056) và tốt hơn trên test --- dropout
+  giữa tầng đóng vai trò điều chuẩn. L=32 overfit sớm hơn (dừng ở epoch 26).
+\item \code{B\_mlp} (chỉ bước hiện tại) gần như không overfit nhưng cả train và val đều thấp (0,87/0,85): \emph{underfit} do
+  thiếu thông tin lịch sử, không phải do mô hình nhỏ.
+\end{itemize}
+
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{curves_B.png}
+\includegraphics[width=\linewidth]{curves_B_len.png}
+\caption{Biểu diễn B: RNN vs CNN vs MLP chỉ dùng bước hiện tại (trên); GRU với độ dài lịch sử L = 1, 4, 16, 32 (dưới).}
+\label{fig:curves_B}
+\end{figure}
+
+\subsection{Biện pháp đã áp dụng và đề xuất}
+\begin{itemize}
+\item \textbf{Đã áp dụng}: early stopping (patience 10, khôi phục trọng số tốt nhất) cho mọi mô hình; Dropout ở đầu phân loại và
+  giữa các tầng RNN; BatchNorm và Dropout cho CNN; cắt gradient; undersampling + hiệu chỉnh trọng số lớp trên validation.
+\item \textbf{Với overfit (biểu diễn B)}: weight decay / L2 (chưa thử --- \code{weight\_decay=0}); giảm số lần xuất hiện được dùng
+  của các địa chỉ có rất nhiều dòng (để mỗi địa chỉ đóng góp cân bằng hơn); làm nhiễu lịch sử (bỏ ngẫu nhiên một số bước --- một
+  dạng tăng cường dữ liệu cho chuỗi); label smoothing để giảm hiện tượng tự tin quá mức.
+\item \textbf{Với underfit}: tăng learning rate hoặc dùng lịch giảm learning rate (cosine/one-cycle) thay vì lr nhỏ cố định; khi dùng
+  batch lớn thì tăng lr tương ứng hoặc tăng ngân sách epoch; giảm dropout cho mô hình nhỏ. Với biểu diễn A, cách duy nhất để vượt giới
+  hạn là \emph{thêm thông tin} (như biểu diễn B), không phải mô hình lớn hơn.
+\end{itemize}

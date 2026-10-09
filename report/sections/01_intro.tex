@@ -1,0 +1,21 @@
+\section{Giới thiệu bài toán và mục tiêu}
+
+Ransomware (mã độc tống tiền) mã hoá dữ liệu của nạn nhân và đòi tiền chuộc, thường được trả bằng Bitcoin. Vì mọi giao dịch Bitcoin
+đều công khai trên chuỗi khối, ta có thể quan sát hành vi của các địa chỉ nhận tiền và đặt câu hỏi: \emph{chỉ từ các đặc trưng giao dịch
+của một địa chỉ trong một ngày, có thể nhận ra địa chỉ đó là địa chỉ bình thường hay thuộc một họ ransomware cụ thể không?}
+
+{\sloppy\paragraph{Bài toán.} Phân loại đa lớp (7 lớp): \code{white} (bình thường), 5 họ ransomware phổ biến nhất
+(\code{paduaCryptoWall}, \code{montrealCryptoLocker}, \code{princetonCerber}, \code{princetonLocky}, \code{montrealCryptXXX})
+và \code{otherRansom} (gộp 23 họ hiếm còn lại). Cách định nghĩa nhãn, đặc trưng và cách chia dữ liệu được giữ nguyên như bài giữa kỳ
+(Bài~1) để các kết quả so sánh được với nhau.\par}
+
+\paragraph{Mục tiêu đồ án.}
+\begin{enumerate}
+\item Xây dựng, huấn luyện và đánh giá mạng nơ-ron hồi tiếp (LSTM, GRU) và mạng tích chập 1 chiều (CNN Conv1D) cho bài toán trên.
+\item Vì dữ liệu ở dạng bảng, đề xuất và so sánh \textbf{hai cách biểu diễn chuỗi}:
+  (A) coi 11 đặc trưng của một dòng là một chuỗi;
+  (B) dựng \emph{chuỗi lịch sử thật} của mỗi địa chỉ qua các ngày.
+\item Thực nghiệm có hệ thống ($\approx$50 cấu hình, các cấu hình chính chạy 3 seed), so sánh với các mô hình nền (Logistic Regression, KNN, Random Forest,
+  HistGradientBoosting, LightGBM, XGBoost, MLP), phân tích overfitting/underfitting và các lỗi dự đoán.
+\item Đánh giá trung thực: chỉ ra khi nào RNN/CNN \emph{không} phải lựa chọn tốt nhất và vì sao.
+\end{enumerate}

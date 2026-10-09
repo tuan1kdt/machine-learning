@@ -1,0 +1,11 @@
+Đồ án áp dụng mạng nơ-ron hồi tiếp (LSTM, GRU) và mạng tích chập một chiều (CNN) cho bài toán phát hiện và phân loại ransomware
+trên bộ dữ liệu BitcoinHeist (2,9 triệu dòng, 7 lớp, lớp \code{white} chiếm 98,6\%). Vì dữ liệu ở dạng bảng, chúng tôi so sánh hai
+cách biểu diễn chuỗi: (A) coi 11 đặc trưng của một dòng là một chuỗi 11 bước, và (B) dựng chuỗi lịch sử thật của mỗi địa chỉ
+qua các ngày (tối đa 16 lần xuất hiện), đánh giá trên cách chia theo địa chỉ để tránh rò rỉ. Hơn 40 cấu hình được thử nghiệm có
+hệ thống (số tầng, số units, hai chiều, cách gộp chuỗi, BatchNorm, Dropout, kích thước kernel, pooling, learning rate, batch size,
+độ dài lịch sử), các cấu hình chính chạy với 3 seed. Với biểu diễn A, RNN/CNN đạt macro F1 0,51--0,54 --- ngang MLP và thấp hơn
+XGBoost (0,575): xếp đặc trưng thành chuỗi không tạo thêm thông tin. Với biểu diễn B, macro F1 tăng lên 0,72--0,74; mô hình
+nơ-ron tốt nhất là CNN kernel 5 (0,742), vượt XGBoost cùng thông tin một dòng (0,565) nhưng vẫn thấp hơn XGBoost có đặc trưng lịch sử
+tổng hợp (0,767). Phân tích chi tiết cho thấy RNN/CNN vượt XGBoost trên các địa chỉ có lịch sử dài ($\ge$6 lần xuất hiện) nhưng
+thua trên các địa chỉ mới --- nhóm chiếm 90\% dữ liệu. Biểu diễn B dễ overfit hơn và được lợi rõ rệt từ BatchNorm + Dropout,
+trong khi với biểu diễn A điều chuẩn thêm chỉ gây underfit.

@@ -1,0 +1,37 @@
+\section{Hạn chế và hướng phát triển}\label{sec:limits}
+
+\subsection{Hạn chế}
+\begin{itemize}
+\item \textbf{Dữ liệu là dạng bảng, không phải chuỗi tự nhiên.} Biểu diễn A tạo ``chuỗi'' bằng cách xếp 11 đặc trưng theo một thứ
+  tự tuỳ ý; RNN/CNN không có lợi thế nào so với MLP và thua mô hình cây. Biểu diễn B là chuỗi thật (theo thời gian) nhưng chỉ có ích
+  cho địa chỉ được dùng lại --- 90\% dòng test là địa chỉ xuất hiện lần đầu, chuỗi chỉ dài 1.
+\item \textbf{Lớp \code{white} được lấy mẫu} (khoảng 1.000 dòng/ngày trong dữ liệu gốc), nên ``lịch sử'' của một địa chỉ white bị
+  thưa hơn thực tế, và đặc trưng ``số lần đã xuất hiện'' có thể phân biệt hai lớp tốt hơn so với khi triển khai thật trên toàn bộ
+  chuỗi khối. Kết quả của biểu diễn B có thể lạc quan so với thực tế.
+\item \textbf{Nhãn ransomware không đầy đủ}: chỉ các địa chỉ đã được các nghiên cứu trước xác định; nhiều dòng \code{white} có thể là
+  ransomware chưa được phát hiện, làm giảm precision quan sát được.
+\item \textbf{Hai cách chia khác nhau}: biểu diễn A dùng chia ngẫu nhiên (để so sánh với Bài 1) --- 54,7\% dòng ransomware trong test
+  có địa chỉ đã xuất hiện trong train, nên kết quả A có rò rỉ nhẹ qua địa chỉ. Bảng~\ref{tab:group_other} đã kiểm chứng: trên cách chia
+  theo địa chỉ, A cho kết quả gần như giống hệt, nên kết luận không thay đổi.
+\item \textbf{Ước lượng phương sai còn hạn chế}: chỉ 3 seed cho các cấu hình chính (1 seed cho các biến thể còn lại), và chỉ một cách
+  chia dữ liệu (không cross-validation). Khác biệt $<$0,01 giữa các cấu hình không nên coi là có ý nghĩa.
+\item \textbf{Early stopping theo \code{val\_us}} (31,6 nghìn dòng, chỉ $\approx$6,6 nghìn dòng ransomware) có nhiễu; nhiều cấu hình A
+  cùng seed dừng ở cùng epoch (42) vì dùng chung thứ tự batch, cho thấy chọn epoch phụ thuộc phần nào vào dao động ngẫu nhiên.
+\item \textbf{Siêu tham số chưa tối ưu toàn diện}: thay đổi từng yếu tố một so với cấu hình gốc (không tìm kiếm lưới/Bayes);
+  không thử recurrent dropout, weight decay, lịch learning rate. Thời gian/epoch trong bảng chính bị ảnh hưởng do chạy song song
+  (đã đo lại riêng ở Bảng~\ref{tab:bench}).
+\end{itemize}
+
+\subsection{Hướng phát triển}
+\begin{itemize}
+\item \textbf{Kết hợp hai thế mạnh}: mô hình cây cho đặc trưng của dòng hiện tại và RNN/CNN cho lịch sử --- ví dụ dùng embedding
+  lịch sử do CNN-B học được làm đặc trưng đầu vào cho XGBoost, hoặc ensemble xác suất của hai mô hình (XGBoost tốt hơn ở địa chỉ
+  mới, CNN-B tốt hơn ở địa chỉ có lịch sử dài --- Bảng~\ref{tab:by_len}).
+\item \textbf{Mô hình đồ thị}: ransomware chuyển tiền qua nhiều địa chỉ; cần dữ liệu giao dịch gốc (cạnh giữa các địa chỉ) để dùng
+  Graph Neural Network --- giúp cả với địa chỉ dùng một lần như Cerber/Locky.
+\item Transformer trên lịch sử địa chỉ (self-attention với mã hoá khoảng cách thời gian); mô hình FT-Transformer [8] cho biểu diễn A.
+\item Tối ưu siêu tham số tự động (Optuna), nhiều seed hơn, cross-validation theo địa chỉ, và hiệu chỉnh xác suất (temperature scaling)
+  trước khi tìm ngưỡng/trọng số lớp.
+\item Đánh giá theo thời gian (train trên các năm trước, test trên năm sau) để mô phỏng triển khai thực tế và kiểm tra khả năng phát hiện
+  họ ransomware mới.
+\end{itemize}

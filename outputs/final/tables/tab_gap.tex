@@ -1,0 +1,30 @@
+\begin{table}[H]\centering\small
+\caption{Chẩn đoán overfit/underfit (seed 42; macro F1 và loss trên tập train đã undersample và \code{val\_us}). Ep.\ min loss: epoch có val loss nhỏ nhất; Ep.\ tốt nhất: epoch có val macro F1 lớn nhất (được giữ lại).}\label{tab:gap}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+& \multicolumn{3}{c}{Epoch} & \multicolumn{3}{c}{Tại epoch tốt nhất} & \multicolumn{3}{c}{Tại epoch cuối} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}
+Cấu hình & min loss & tốt nhất & cuối & F1 train & F1 val & chênh & loss train & loss val & F1 chênh \\
+\midrule
+\code{A\_lstm} & 57 & 50 & 60 & 0.742 & 0.722 & +0.020 & 0.202 & 0.225 & +0.037 \\
+\code{A\_gru} & 46 & 42 & 52 & 0.729 & 0.717 & +0.012 & 0.208 & 0.225 & +0.028 \\
+\code{A\_gru\_nodrop} & 51 & 63 & 73 & 0.768 & 0.746 & +0.022 & 0.183 & 0.232 & +0.037 \\
+\code{A\_gru\_h128} & 38 & 35 & 45 & 0.740 & 0.726 & +0.014 & 0.197 & 0.229 & +0.036 \\
+\code{A\_gru\_lr3e-4} & 92 & 84 & 94 & 0.711 & 0.706 & +0.004 & 0.226 & 0.231 & +0.011 \\
+\code{A\_gru\_bs2048} & 98 & 98 & 100 & 0.730 & 0.713 & +0.017 & 0.210 & 0.227 & +0.027 \\
+\code{A\_cnn\_simple} & 48 & 47 & 57 & 0.749 & 0.728 & +0.021 & 0.199 & 0.230 & +0.034 \\
+\code{A\_cnn\_bn} & 47 & 53 & 63 & 0.758 & 0.741 & +0.016 & 0.191 & 0.229 & +0.033 \\
+\code{A\_cnn\_do} & 50 & 42 & 52 & 0.699 & 0.708 & -0.009 & 0.236 & 0.232 & +0.006 \\
+\code{A\_cnn\_bn\_do} & 52 & 42 & 52 & 0.697 & 0.705 & -0.008 & 0.239 & 0.230 & +0.007 \\
+\code{A\_mlp} & 49 & 42 & 52 & 0.713 & 0.722 & -0.009 & 0.220 & 0.226 & +0.015 \\
+\midrule
+\code{B\_gru} & 22 & 53 & 63 & 0.911 & 0.855 & +0.056 & 0.095 & 0.169 & +0.063 \\
+\code{B\_gru\_2l} & 61 & 53 & 63 & 0.915 & 0.881 & +0.034 & 0.094 & 0.152 & +0.041 \\
+\code{B\_gru\_L32} & 29 & 26 & 36 & 0.895 & 0.845 & +0.050 & 0.105 & 0.162 & +0.063 \\
+\code{B\_cnn\_simple} & 21 & 12 & 22 & 0.867 & 0.831 & +0.036 & 0.117 & 0.159 & +0.071 \\
+\code{B\_cnn\_bn\_do} & 31 & 22 & 32 & 0.863 & 0.847 & +0.016 & 0.131 & 0.136 & +0.035 \\
+\code{B\_cnn\_k5} & 65 & 66 & 76 & 0.890 & 0.861 & +0.029 & 0.118 & 0.132 & +0.036 \\
+\code{B\_mlp} & 96 & 88 & 98 & 0.872 & 0.845 & +0.026 & 0.122 & 0.142 & +0.035 \\
+\bottomrule
+\end{tabular}
+\end{table}

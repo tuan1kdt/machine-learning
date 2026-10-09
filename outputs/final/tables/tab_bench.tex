@@ -1,0 +1,25 @@
+\begin{table}[H]\centering\small
+\caption{Tốc độ huấn luyện đo riêng (GPU không chia sẻ, trung bình 5 epoch sau 1 epoch khởi động, $\approx$126.500 dòng/epoch, batch 512).}\label{tab:bench}
+\begin{tabular}{llrr}
+\toprule
+Cấu hình & Kiến trúc & Tham số & Giây/epoch \\
+\midrule
+\code{A\_lstm} & LSTM 1x64, last & 27.687 & 0.41 \\
+\code{A\_gru} & GRU 1x64, last & 22.439 & 0.39 \\
+\code{A\_lstm\_2l} & LSTM 2x64, last & 60.967 & 0.65 \\
+\code{A\_gru\_2l} & GRU 2x64, last & 47.399 & 0.53 \\
+\code{A\_bigru} & BiGRU 1x64, last & 42.279 & 0.48 \\
+\code{A\_cnn\_simple} & Conv 32-64 k3 maxpool, flatten, do 0.0 & 22.663 & 0.43 \\
+\code{A\_cnn\_bn\_do} & Conv 32-64 k3 maxpool +BN, flatten, do 0.3 & 22.855 & 0.55 \\
+\code{A\_cnn\_3l} & Conv 32-64-128 k3 maxpool +BN, flatten, do 0.3 & 60.103 & 0.73 \\
+\code{A\_mlp} & MLP 2x128, do 0.2 & 22.407 & 0.29 \\
+\midrule
+\code{B\_lstm} & LSTM 1x64, last & 31.879 & 0.92 \\
+\code{B\_gru} & GRU 1x64, last & 25.607 & 0.89 \\
+\code{B\_bigru} & BiGRU 1x64, last & 48.519 & 2.14 \\
+\code{B\_cnn\_bn\_do} & Conv 32-64 k3 maxpool +BN, gap, do 0.3 & 16.295 & 0.68 \\
+\code{B\_cnn\_3l} & Conv 32-64-128 k3 maxpool +BN, gap, do 0.3 & 45.351 & 0.77 \\
+\code{B\_mlp} & MLP 2x128, do 0.2 & 22.663 & 0.33 \\
+\bottomrule
+\end{tabular}
+\end{table}

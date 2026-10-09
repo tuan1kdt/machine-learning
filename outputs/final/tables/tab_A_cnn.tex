@@ -1,0 +1,22 @@
+\begin{table}[H]\centering\scriptsize
+\caption{Biểu diễn A — các cấu hình CNN và MLP (chia ngẫu nhiên).}\label{tab:A_cnn}
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}p{3.6cm}rrrrrrr>{\raggedright\arraybackslash}X@{}}
+\toprule
+Cấu hình & Kiến trúc chính & LR & Batch & Ep. & Tham số & s/ep. & Macro F1 & F1 nhị phân & Nhận xét \\
+\midrule
+\code{A\_cnn\_bn} & Conv 32-64 k3 maxpool +BN, flatten, do 0.0 & 1e-3 & 512 & 53/63 & 22.855 & 1.02 & \textbf{0.5276} & 0.4448 & BN: hội tụ nhanh nhất, overfit nhẹ \\
+\code{A\_cnn\_wide} & Conv 64-128 k3 maxpool +BN, flatten, do 0.3 & 1e-3 & 512 & 42/52 & 55.399 & 1.30 & 0.5267 & 0.4538 & gấp đôi filters, không tốt hơn \\
+\code{A\_cnn\_simple} & Conv 32-64 k3 maxpool, flatten, do 0.0 & 1e-3 & 512 & 47/57 & 22.663 & 0.95 & 0.5235 $\pm$ 0.0050 & 0.4513 & cấu hình gốc CNN \\
+\code{A\_mlp} & MLP 2x128, do 0.2 & 1e-3 & 512 & 42/52 & 22.407 & 0.97 & 0.5227 $\pm$ 0.0063 & 0.4521 & không coi là chuỗi --- ngang RNN/CNN \\
+\code{A\_cnn\_3l} & Conv 32-64-128 k3 maxpool +BN, flatten, do 0.3 & 1e-3 & 512 & 42/52 & 60.103 & 1.34 & 0.5219 & 0.4554 & sâu hơn không giúp (chuỗi chỉ 11 bước) \\
+\code{A\_cnn\_do} & Conv 32-64 k3 maxpool, flatten, do 0.3 & 1e-3 & 512 & 42/52 & 22.663 & 0.96 & 0.5199 & 0.4544 & dropout: train $\approx$ val, hơi underfit \\
+\code{A\_cnn\_avgpool} & Conv 32-64 k3 avgpool +BN, flatten, do 0.3 & 1e-3 & 512 & 42/52 & 22.855 & 1.56 & 0.5199 & 0.4512 & AvgPool $\approx$ MaxPool \\
+\code{A\_cnn\_k5} & Conv 32-64 k5 maxpool +BN, flatten, do 0.3 & 1e-3 & 512 & 42/52 & 27.975 & 1.15 & 0.5188 & 0.4496 & kernel 5 $\approx$ kernel 3 \\
+\code{A\_cnn\_bs2048} & Conv 32-64 k3 maxpool +BN, flatten, do 0.3 & 1e-3 & 2048 & 73/83 & 22.855 & 0.41 & 0.5154 & 0.4387 & batch lớn: hội tụ chậm hơn \\
+\code{A\_cnn\_bn\_do} & Conv 32-64 k3 maxpool +BN, flatten, do 0.3 & 1e-3 & 512 & 42/52 & 22.855 & 1.11 & 0.5141 $\pm$ 0.0033 & 0.4424 & điều chuẩn thừa với mô hình nhỏ \\
+\code{A\_cnn\_gap} & Conv 32-64 k3 maxpool +BN, gap, do 0.3 & 1e-3 & 512 & 45/55 & 14.663 & 1.12 & 0.5129 & 0.4427 & GAP bỏ thông tin ``vị trí = đặc trưng nào'' \\
+\code{A\_cnn\_lr3e-4} & Conv 32-64 k3 maxpool +BN, flatten, do 0.3 & 3e-4 & 512 & 53/63 & 22.855 & 1.39 & 0.5049 & 0.4390 & lr nhỏ: underfit \\
+\bottomrule
+\end{tabularx}
+\end{table}

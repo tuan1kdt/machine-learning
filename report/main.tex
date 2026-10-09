@@ -1,0 +1,70 @@
+% Báo cáo đồ án cuối kỳ — Nhập môn Học máy
+% Biên dịch: cd report && latexmk -xelatex main.tex
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=2.3cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{texgyretermes}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,ItalicFont=*-italic,BoldItalicFont=*-bolditalic]
+\setmonofont{texgyrecursor}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,ItalicFont=*-italic,BoldItalicFont=*-bolditalic,Scale=0.95]
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs,tabularx,multirow,longtable}
+\usepackage{xcolor}
+\usepackage{caption,subcaption}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,calc,shapes.misc}
+\usepackage[hidelinks]{hyperref}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,frame=single,columns=fullflexible}
+\setlist{itemsep=2pt,topsep=3pt}
+\setlength{\emergencystretch}{3em}
+\graphicspath{{../outputs/final/figures/}}
+\newcommand{\tabdir}{../outputs/final/tables}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{\textbf{Phát hiện ransomware trên chuỗi khối Bitcoin\\bằng mạng nơ-ron hồi tiếp (LSTM/GRU) và mạng tích chập (CNN)}\\[4pt]
+\large Đồ án cuối kỳ — Nhập môn Học máy}
+\author{Nhóm: [Họ tên thành viên — MSSV]}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\input{sections/01_intro}
+\input{sections/02_data}
+\input{sections/03_preprocess}
+\input{sections/04_methods}
+\input{sections/05_setup}
+\input{sections/06_results}
+\input{sections/07_analysis}
+\input{sections/08_limits}
+
+\section*{Tài liệu tham khảo}
+\addcontentsline{toc}{section}{Tài liệu tham khảo}
+\begin{enumerate}[label={[\arabic*]}]
+\item C.~G. Akcora, Y.~Li, Y.~R. Gel, M.~Kantarcioglu. \emph{BitcoinHeist: Topological Data Analysis for Ransomware Detection on the Bitcoin Blockchain}. IJCAI-PRICAI 2020. Bộ dữ liệu: UCI Machine Learning Repository, \emph{BitcoinHeistRansomwareAddressDataset}.
+\item S.~Hochreiter, J.~Schmidhuber. \emph{Long Short-Term Memory}. Neural Computation 9(8), 1997.
+\item K.~Cho và cộng sự. \emph{Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation}. EMNLP 2014 (GRU).
+\item Y.~LeCun, Y.~Bengio. \emph{Convolutional Networks for Images, Speech, and Time Series}. The Handbook of Brain Theory and Neural Networks, 1995.
+\item S.~Ioffe, C.~Szegedy. \emph{Batch Normalization}. ICML 2015.
+\item N.~Srivastava và cộng sự. \emph{Dropout: A Simple Way to Prevent Neural Networks from Overfitting}. JMLR 15, 2014.
+\item D.~P. Kingma, J.~Ba. \emph{Adam: A Method for Stochastic Optimization}. ICLR 2015.
+\item Y.~Gorishniy và cộng sự. \emph{Revisiting Deep Learning Models for Tabular Data}. NeurIPS 2021 (ý tưởng mã hoá mỗi đặc trưng thành một token).
+\item L.~Grinsztajn, E.~Oyallon, G.~Varoquaux. \emph{Why do tree-based models still outperform deep learning on tabular data?} NeurIPS 2022 Datasets and Benchmarks.
+\item T.~Chen, C.~Guestrin. \emph{XGBoost: A Scalable Tree Boosting System}. KDD 2016.
+\item Thư viện: PyTorch 2.11, scikit-learn 1.x, XGBoost, pandas, NumPy, Matplotlib.
+\end{enumerate}
+
+\appendix
+\input{sections/appendix}
+
+\end{document}

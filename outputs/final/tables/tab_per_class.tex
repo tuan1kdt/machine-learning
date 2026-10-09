@@ -1,0 +1,19 @@
+\begin{table}[H]\centering\small
+\caption{F1 từng lớp trên tập test của các mô hình tiêu biểu (seed 42).}\label{tab:per_class}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrrrrrrrr}
+\toprule
+Mô hình & CryptXXX & CryptoLocker & otherRansom & CryptoWall & Cerber & Locky & white & Macro \\
+\midrule
+XGBoost (A, ngẫu nhiên) & 0.859 & 0.284 & 0.109 & 0.415 & 0.631 & 0.732 & 0.992 & 0.575 \\
+RNN tốt nhất (A) & 0.807 & 0.266 & 0.074 & 0.397 & 0.555 & 0.648 & 0.992 & 0.534 \\
+CNN tốt nhất (A) & 0.806 & 0.237 & 0.084 & 0.381 & 0.554 & 0.640 & 0.991 & 0.528 \\
+MLP (A) & 0.780 & 0.249 & 0.077 & 0.385 & 0.522 & 0.629 & 0.991 & 0.519 \\
+XGBoost, không lịch sử & 0.887 & 0.240 & 0.084 & 0.381 & 0.634 & 0.736 & 0.993 & 0.565 \\
+GRU, L=1 (chỉ cờ lần đầu + Δngày) & 0.790 & 0.496 & 0.364 & 0.753 & 0.518 & 0.643 & 0.995 & 0.651 \\
+RNN tốt nhất (B) & 0.858 & 0.678 & 0.578 & 0.806 & 0.556 & 0.673 & 0.996 & 0.735 \\
+CNN tốt nhất (B) & 0.840 & 0.698 & 0.655 & 0.835 & 0.520 & 0.651 & 0.996 & 0.742 \\
+XGBoost + lịch sử & 0.915 & 0.709 & 0.536 & 0.838 & 0.631 & 0.745 & 0.997 & 0.767 \\
+\bottomrule
+\end{tabular}}
+\end{table}

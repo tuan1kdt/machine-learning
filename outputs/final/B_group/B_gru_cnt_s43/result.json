@@ -1,0 +1,158 @@
+{
+ "name": "B_gru_cnt_s43",
+ "rep": "B",
+ "split": "group",
+ "model": "rnn",
+ "params": {
+  "cell": "gru",
+  "d": 32,
+  "hidden": 64,
+  "layers": 1,
+  "bidirectional": false,
+  "dropout": 0.2,
+  "pool": "last"
+ },
+ "train": {
+  "lr": 0.001,
+  "batch_size": 512,
+  "max_epochs": 100,
+  "patience": 10,
+  "weight_decay": 0.0,
+  "seed": 43,
+  "side_count": true,
+  "history_len": 16
+ },
+ "n_params": 25799,
+ "epochs": 53,
+ "best_epoch": 43,
+ "train_time_s": 225.93350890022703,
+ "time_per_epoch_s": 4.262896394343906,
+ "test_time_s": 0.20393069996498525,
+ "val_us_macro_f1": 0.8610696182800629,
+ "accuracy": 0.9918704208918858,
+ "weighted_precision": 0.9916393468450051,
+ "weighted_recall": 0.9918704208918858,
+ "weighted_f1": 0.9916896011362559,
+ "macro_precision": 0.7736048926884445,
+ "macro_recall": 0.6781695831228748,
+ "macro_f1": 0.7129243257027095,
+ "binary_f1_ransom": 0.698703179514186,
+ "per_class": {
+  "montrealCryptXXX": {
+   "precision": 0.8557692307692307,
+   "recall": 0.8195211786372008,
+   "f1-score": 0.8372530573847601,
+   "support": 543.0
+  },
+  "montrealCryptoLocker": {
+   "precision": 0.7712305025996534,
+   "recall": 0.6112637362637363,
+   "f1-score": 0.6819923371647509,
+   "support": 1456.0
+  },
+  "otherRansom": {
+   "precision": 0.8151260504201681,
+   "recall": 0.3803921568627451,
+   "f1-score": 0.5187165775401069,
+   "support": 255.0
+  },
+  "paduaCryptoWall": {
+   "precision": 0.8187716262975778,
+   "recall": 0.7626913779210315,
+   "f1-score": 0.7897371714643304,
+   "support": 2482.0
+  },
+  "princetonCerber": {
+   "precision": 0.5290468133107727,
+   "recall": 0.5032188841201717,
+   "f1-score": 0.5158097332966731,
+   "support": 1864.0
+  },
+  "princetonLocky": {
+   "precision": 0.6298145506419401,
+   "recall": 0.6735316552250191,
+   "f1-score": 0.6509399189089569,
+   "support": 1311.0
+  },
+  "white": {
+   "precision": 0.9954754747797682,
+   "recall": 0.9965680928302189,
+   "f1-score": 0.9960214841593875,
+   "support": 574899.0
+  }
+ },
+ "class_weights": [
+  0.0820849986238988,
+  0.014264233908999256,
+  0.0301973834223185,
+  0.0820849986238988,
+  0.1353352832366127,
+  0.06392786120670757,
+  1.0
+ ],
+ "confusion": [
+  [
+   445,
+   0,
+   0,
+   0,
+   3,
+   3,
+   92
+  ],
+  [
+   0,
+   890,
+   0,
+   6,
+   0,
+   0,
+   560
+  ],
+  [
+   4,
+   3,
+   97,
+   33,
+   1,
+   2,
+   115
+  ],
+  [
+   0,
+   92,
+   5,
+   1893,
+   0,
+   0,
+   492
+  ],
+  [
+   7,
+   0,
+   0,
+   0,
+   938,
+   0,
+   919
+  ],
+  [
+   0,
+   0,
+   0,
+   0,
+   2,
+   883,
+   426
+  ],
+  [
+   64,
+   169,
+   17,
+   380,
+   829,
+   514,
+   572926
+  ]
+ ]
+}

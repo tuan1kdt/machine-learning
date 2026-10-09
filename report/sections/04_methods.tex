@@ -1,0 +1,115 @@
+\section{Phương pháp và kiến trúc mô hình}
+
+\subsection{Biểu diễn dữ liệu thành chuỗi}\label{sec:repr}
+
+Mỗi dòng của BitcoinHeist là một vector đặc trưng, không có cấu trúc chuỗi sẵn có. Đồ án thử hai cách chuyển đổi (Hình~\ref{fig:repr}).
+
+\begin{figure}[H]\centering
+\begin{tikzpicture}[font=\small, tok/.style={draw,rounded corners=1pt,minimum width=0.95cm,minimum height=0.55cm,fill=blue!8},
+  hstep/.style={draw,rounded corners=1pt,minimum width=1.25cm,minimum height=0.55cm,fill=orange!12},
+  pad/.style={draw,dashed,rounded corners=1pt,minimum width=1.25cm,minimum height=0.55cm,fill=gray!8}]
+\node[anchor=west] at (-0.6,1.0) {\textbf{(A) Feature-as-sequence}: 1 dòng $\to$ chuỗi 11 bước, bước $i$ = đặc trưng thứ $i$};
+\foreach \n [count=\i from 0] in {length,weight,count,looped,neigh.,income,inc\_tz,inc/cnt,inc/nb,w/cnt,loop/cnt}
+  \node[tok] (a\i) at (\i*1.08,0) {\scriptsize \n};
+\node[below=0.15cm of a5] {\scriptsize $x_i \;\mapsto\; x_i\mathbf{W}_i+\mathbf{b}_i\in\mathbb{R}^{16}$ \quad (thứ tự đặc trưng do ta đặt, không mang nghĩa thời gian)};
+\node[anchor=west] at (-0.6,-1.55) {\textbf{(B) Address history}: dòng hiện tại + tối đa $L-1$ lần xuất hiện \emph{trước đó} của cùng địa chỉ};
+\node[hstep] (b0) at (0.1,-2.5) {\scriptsize ngày $t_1$};
+\node[hstep,right=0.15cm of b0] (b1) {\scriptsize ngày $t_2$};
+\node[hstep,right=0.15cm of b1] (b2) {\scriptsize $\cdots$};
+\node[hstep,right=0.15cm of b2,fill=red!15,thick] (b3) {\scriptsize hôm nay};
+\node[pad,right=0.15cm of b3] (b4) {\scriptsize đệm};
+\node[pad,right=0.15cm of b4] (b5) {\scriptsize đệm};
+\node[right=0.2cm of b5,align=left] {\scriptsize mỗi bước: 11 đặc trưng\\\scriptsize + cờ ``lần đầu'' + $\log(1+\Delta\text{ngày})$};
+\draw[-{Latex}] (b0.south west) ++(0,-0.15) -- ($(b3.south east)+(0,-0.15)$) node[midway,below] {\scriptsize thời gian (chỉ quá khứ, không nhìn tương lai)};
+\end{tikzpicture}
+\caption{Hai cách biểu diễn một dòng dữ liệu bảng thành chuỗi để đưa vào RNN/CNN.}\label{fig:repr}
+\end{figure}
+
+\paragraph{Biểu diễn A --- ``feature-as-sequence''.} 11 đặc trưng số (đã chuẩn hoá) được xem là chuỗi độ dài cố định 11.
+Mỗi giá trị vô hướng $x_i$ được ``nhúng'' thành vector $\mathbf{e}_i=x_i\mathbf{W}_i+\mathbf{b}_i\in\mathbb{R}^{16}$, trong đó
+$\mathbf{W}_i,\mathbf{b}_i$ là tham số \emph{riêng} của từng đặc trưng (\emph{feature tokenizer}~[8]) --- nhờ đó mô hình biết
+bước $i$ là đặc trưng nào. Không có chuỗi dài ngắn khác nhau nên không cần đệm. 27 chiều one-hot thời gian không đưa vào chuỗi
+mà được \emph{ghép vào trước lớp phân loại}. \textbf{Hạn chế}: thứ tự đặc trưng là tuỳ ý, không có ``thời gian'' hay ``vị trí''
+thật; giả thiết cục bộ của CNN (đặc trưng kề nhau liên quan nhau) và giả thiết tuần tự của RNN chỉ đúng một phần (các đặc trưng
+tỉ lệ được đặt cạnh đặc trưng gốc tương ứng). Do đó ta \emph{không kỳ vọng} RNN/CNN vượt mô hình cây trên biểu diễn này.
+
+\paragraph{Biểu diễn B --- ``address history''.} Với mỗi dòng (địa chỉ $a$, ngày $t$), lấy tối đa $L=16$ lần xuất hiện gần nhất
+của $a$ tại các ngày $\le t$, sắp theo thời gian, bước cuối là chính dòng hiện tại. Mỗi bước là vector 13 chiều
+(11 đặc trưng + cờ ``lần đầu xuất hiện'' + $\log(1+\text{số ngày từ lần trước})$), chiếu tuyến tính sang $\mathbb{R}^{32}$.
+\textbf{Chuỗi có độ dài khác nhau} (1--16): đệm 0 ở cuối, kèm mặt nạ (mask); RNN dùng \code{pack\_padded\_sequence} để bỏ qua
+phần đệm, CNN nhân mặt nạ trước mỗi lớp tích chập và dùng pooling có mặt nạ. Đây là chuỗi thời gian \emph{thật}, chỉ dùng thông
+tin quá khứ (có thể triển khai thực tế: khi một địa chỉ nhận tiền hôm nay, ta đã biết lịch sử của nó). Phải chia dữ liệu theo địa
+chỉ để mô hình không ``nhớ'' địa chỉ đã thấy khi train.
+
+\subsection{Mô hình RNN (LSTM / GRU)}
+
+\begin{figure}[H]\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[font=\small,node distance=0.45cm, box/.style={draw,rounded corners=2pt,align=center,minimum height=0.8cm,fill=#1}, box/.default=white]
+\node[box=gray!10] (in) {Chuỗi đầu vào\\ $T\times$ đặc trưng};
+\node[box=blue!8,right=of in] (emb) {Tokenizer (A) / \\ Linear (B)\\ $\to T\times d$};
+\node[box=green!10,right=of emb] (rnn) {LSTM / GRU\\ $n$ tầng $\times h$ units\\ (Bi-)};
+\node[box=green!5,right=of rnn] (pool) {Biểu diễn chuỗi:\\ hidden cuối /\\ mean / attention};
+\node[box=orange!10,right=of pool] (cat) {Ghép one-hot\\ thời gian (27)};
+\node[box=red!8,right=of cat] (head) {Dense 64, ReLU\\ Dropout\\ Dense 7, softmax};
+\foreach \a/\b in {in/emb,emb/rnn,rnn/pool,pool/cat,cat/head} \draw[-{Latex}] (\a) -- (\b);
+\end{tikzpicture}}
+\caption{Kiến trúc tổng quát của mô hình RNN.}\label{fig:rnn}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{Lớp hồi tiếp}: LSTM (cổng quên/vào/ra + ô nhớ $c_t$) hoặc GRU (cổng cập nhật/đặt lại, không có ô nhớ riêng, ít
+  tham số hơn $\approx$25\%). Cấu hình gốc: 1 tầng, 64 hidden units, một chiều. Các biến thể: 2 tầng, 128 units, hai chiều
+  (Bidirectional), không dropout.
+\item \textbf{Biểu diễn cuối của chuỗi}: hidden state cuối của tầng trên cùng (mặc định; với Bi-RNN ghép trạng thái cuối của hai
+  chiều), trung bình (mean pooling) trên các bước thật, hoặc attention đơn giản $\alpha_t=\mathrm{softmax}_t(\mathbf{v}^\top
+  \mathbf{h}_t)$, $\mathbf{z}=\sum_t\alpha_t\mathbf{h}_t$. Ở biểu diễn B, nhờ \code{pack\_padded\_sequence} hidden state cuối chính là
+  trạng thái tại ngày hiện tại.
+\item \textbf{Dropout}: 0,2 ở lớp Dense cuối và \emph{giữa các tầng} RNN khi có 2 tầng. \emph{Không dùng recurrent dropout}
+  (dropout trên kết nối hồi tiếp) vì cài đặt cuDNN của PyTorch không hỗ trợ; với 1 tầng và chuỗi ngắn, dropout ở đầu ra là đủ.
+\item \textbf{Đầu ra}: Dense 7 + softmax; hàm mất mát cross-entropy.
+\end{itemize}
+Chọn \textbf{cả LSTM và GRU} để so sánh kiến trúc, tốc độ và kết quả (mục~\ref{sec:results}).
+
+\subsection{Mô hình CNN (Conv1D)}
+
+\begin{figure}[H]\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[font=\small,node distance=0.4cm, box/.style={draw,rounded corners=2pt,align=center,minimum height=0.8cm,fill=#1}, box/.default=white]
+\node[box=gray!10] (in) {Chuỗi\\ $T\times d$};
+\node[box=blue!8,right=of in] (c1) {Conv1D 32, k3\\ (BN) ReLU\\ (Dropout)};
+\node[box=blue!4,right=of c1] (p1) {MaxPool 2\\ $T\to\lceil T/2\rceil$};
+\node[box=blue!8,right=of p1] (c2) {Conv1D 64, k3\\ (BN) ReLU\\ (Dropout)};
+\node[box=blue!4,right=of c2] (p2) {MaxPool 2};
+\node[box=green!8,right=of p2] (fl) {Flatten /\\ Global Avg/Max\\ Pooling};
+\node[box=red!8,right=of fl] (head) {+ one-hot 27\\ Dense 64, ReLU\\ Dense 7, softmax};
+\foreach \a/\b in {in/c1,c1/p1,p1/c2,c2/p2,p2/fl,fl/head} \draw[-{Latex}] (\a) -- (\b);
+\end{tikzpicture}}
+\caption{Kiến trúc tổng quát của mô hình CNN 1 chiều.}\label{fig:cnn}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{Loại}: Conv1D (trượt dọc trục chuỗi, mỗi bước có $d$ kênh = chiều embedding). Conv2D không phù hợp vì dữ liệu không có
+  cấu trúc 2 chiều.
+\item \textbf{Lớp tích chập}: 2 lớp (32 và 64 filters) mặc định; biến thể 3 lớp (32-64-128), rộng (64-128), kernel 3 hoặc 5,
+  padding ``same''. Mỗi filter là một bộ phát hiện mẫu \emph{cục bộ} trên $k$ bước liên tiếp, dùng chung trọng số ở mọi vị trí
+  (chia sẻ tham số) --- với biểu diễn A là tổ hợp của $k$ đặc trưng kề nhau, với B là mẫu hành vi trong $k$ lần xuất hiện liên tiếp.
+\item \textbf{Pooling}: MaxPooling (biến thể AveragePooling) kích thước 2 sau mỗi lớp khi chuỗi còn dài $\ge 4$:
+  giảm một nửa độ dài $\Rightarrow$ giảm số tham số của lớp Dense phía sau và tính toán, đồng thời giúp đặc trưng ít nhạy với
+  dịch chuyển nhỏ (bất biến cục bộ).
+\item \textbf{Batch Normalization} và \textbf{Dropout} (0,3): bật/tắt để so sánh CNN đơn giản với CNN có điều chuẩn.
+\item \textbf{Chuyển sang lớp phân loại}: \emph{Flatten} (giữ thông tin vị trí --- hợp với A vì mỗi vị trí là một đặc trưng cố định)
+  hoặc \emph{Global Average/Max Pooling} (bất biến độ dài --- bắt buộc với B vì chuỗi dài ngắn khác nhau).
+\item \textbf{Phần fully connected}: ghép one-hot thời gian $\to$ Dense 64 ReLU $\to$ Dropout $\to$ Dense 7 softmax.
+\end{itemize}
+
+\subsection{Mô hình nền (baseline)}
+\begin{itemize}
+\item Từ Bài 1 (cùng cách chia ngẫu nhiên, cùng tiền xử lý): Logistic Regression, KNN, Random Forest, HistGradientBoosting,
+  LightGBM, XGBoost và Ensemble.
+\item \textbf{MLP} (2 tầng ẩn 128 units, ReLU, Dropout 0,2): cùng đặc trưng nhưng \emph{không} coi là chuỗi --- dùng để tách bạch
+  lợi ích của ``cấu trúc chuỗi'' khỏi lợi ích của ``mạng nơ-ron''.
+\item \textbf{XGBoost trên cách chia theo địa chỉ} với 3 mức thông tin lịch sử: chỉ dòng hiện tại (\code{XGB\_current}); thêm
+  số lần đã xuất hiện + khoảng cách ngày (\code{XGB\_count}); thêm trung bình/max của 11 đặc trưng trên 15 lần xuất hiện trước
+  (\code{XGB\_hist}). Đây là đối thủ ``dạng bảng'' công bằng của biểu diễn B.
+\end{itemize}
